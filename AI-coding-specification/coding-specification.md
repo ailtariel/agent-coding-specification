@@ -1,3 +1,6 @@
+Author: ailtariel@gmail.com
+Updated: 2026-05-17
+
 # Repository-Level AI Coding Specification
 
 This specification defines high-priority engineering standards for AI-assisted coding tasks within this repository.

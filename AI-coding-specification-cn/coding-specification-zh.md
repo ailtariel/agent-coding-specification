@@ -1,3 +1,6 @@
+Author: ailtariel@gmail.com
+Updated: 2026-05-17
+
 # 仓库级 AI 编程规范
 
 此规范定义了本仓库 AI 辅助编程任务的高优先级工程标准。
