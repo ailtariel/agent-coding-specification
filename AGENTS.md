@@ -19,6 +19,19 @@ Before any implementation, code edit, or command execution related to delivery:
 
 If additional rule files are added under `AI-coding-specification/`, list them explicitly in this section and describe when each file applies. Do not rely on wildcard reading for mandatory rules.
 
+## Functional Design Documents
+
+The `docs/` directory may contain functional design documents, product decisions, workflow descriptions, or feature-specific constraints.
+
+Before the following task types, agents must search `docs/` for relevant documents and read the directly related ones before changing code:
+
+- Feature changes or new feature implementation.
+- Debugging tasks where the error is not a simple syntax error.
+
+If multiple documents conflict with each other, if documentation conflicts with the current implementation, or if documentation conflicts with the user's explicit request in the current conversation, stop before code changes and confirm the intended direction with the user.
+
+When relevant documents exist, agents should update those documents by default after completing the code changes, unless the user explicitly asks not to or the change does not affect documented behavior, workflows, constraints, or decisions.
+
 ## Execution Requirements
 
 - Do not start implementation before the required documents are read.
