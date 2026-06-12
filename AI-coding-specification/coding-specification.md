@@ -1,5 +1,5 @@
 Author: ailtariel@gmail.com
-Updated: 2026-05-17
+Updated: 2026-06-12
 
 # Repository-Level AI Coding Specification
 
@@ -26,7 +26,7 @@ Execution Requirements: Clarify the implementation plan and affected files befor
 - [minimal-context]
   - Prioritize reading the minimum set of files directly related to the current task.
   - Do not scan the entire repository without purpose, read large amounts of unrelated files, or repeatedly read files already confirmed to be irrelevant.
-- [plan-first] Provide the implementation plan and affected files before writing code. Simple and certain changes may proceed immediately after a one-line explanation. Changes involving design choices, behavior changes, dependency changes, public contract changes, or multi-file impact must wait for user confirmation.
+- [plan-first] Provide the implementation plan and affected files before writing code. Simple and certain changes may proceed immediately after a one-line explanation. Changes involving design choices, behavior changes, dependency changes, public contract changes, or multi-file impact must wait for user confirmation. When design or implementation documents are required, follow the "Design and Implementation Documents" section.
 - [security-confirmation] Security risks must be explicitly identified and communicated, but implementation decisions involving functionality, architecture, deployment, or security strategy must be confirmed by the user.
   - AI should proactively point out security risks and possible mitigation directions. However, repository-level AI coding usually lacks complete context about architecture, deployment, compliance, and business risk. Before receiving user confirmation, do not independently implement functionality-, architecture-, deployment-, or policy-level security measures.
   - Only localized, low-risk security hardening with clear behavior and no public contract changes may be applied by default.
@@ -51,6 +51,41 @@ Execution Requirements: Clarify the implementation plan and affected files befor
   - Resource cleanup or transactional consistency is required (e.g. rollback, releasing connections)
 - [public-contract] Do not modify public APIs, database schemas, configuration formats, or environment variable names unless explicitly requested by the user.
 - [dependency-gate] Do not introduce new dependencies. If a new dependency is truly necessary, explain the reason and wait for confirmation first.
+
+## Large Tasks
+
+Applicable Scenarios: Tasks expected to require phased implementation, tasks involving multiple relatively independent subtasks, or tasks where the user explicitly requests the large-task workflow.
+
+Key Triggers: Large features, multi-phase implementation, multiple subtasks, implementation plans, phases.
+
+Execution Requirements: This rule defines the triggers and default workflow for large tasks. If a task triggers the large-task conditions, explicitly confirm with the user whether to use the multi-phase + automatic iterative development workflow.
+
+- [large-task-threshold] Treat a task as a large task by default if any of the following is true: it is expected to require phased implementation, it involves multiple relatively independent subtasks, or the user explicitly requests the large-task workflow. If triggered, explicitly confirm with the user whether to use the large-task multi-phase + automatic iterative development workflow.
+- [default-phase-flow] After the user confirms the large-task workflow, if the user does not provide different instructions, automatically proceed through the phases in the implementation document. Each phase does not require another confirmation after completion. If important design conflicts, omissions, or implementation blockers are discovered during implementation, pause further code changes and wait for user decision.
+- [phase-workflow] Each implementation phase should include at least the following steps, in order:
+  1. Code changes
+  2. Review, including whether the functionality works, whether it follows the design and implementation documents, whether it introduces changes outside the requirement, and whether it violates relevant rules in this specification. If deviations are found, fix them before moving to the next phase.
+  3. The smallest necessary verification
+  4. Briefly record the implementation status in the implementation document
+  5. Git commit. Each phase should have only one commit; do not split meaningless small commits merely to increase the commit count.
+
+## Design and Implementation Documents
+
+Applicable Scenarios: Tasks that require design documents, implementation documents, or traceable records of decisions, implementation steps, reviews, tests, and commits.
+
+Key Triggers: Feature, new module, design document, design review, implementation plan.
+
+Execution Requirements: Design documents and implementation documents should separate decisions from implementation details. Complete the design document first and wait for user confirmation. Do not make code changes before confirmation by default. After confirmation, write the implementation document and enter implementation.
+
+- [design-execution-separation] In principle, design documents and implementation documents should be written separately.
+- [doc-lightweight-exception] For smaller tasks with simple design choices that are expected to be completed in one implementation pass, design and implementation documents may be merged even if [large-task-threshold] is met. The merged document should still distinguish design decisions from the implementation plan. If the task expands or requires multi-phase implementation, restore separate documents.
+- [task-doc-location] Save design and implementation documents in an existing same-type documentation path first. If none exists, use `docs/<module-or-task>/`. Design document filenames should start with `[design]`; implementation document filenames should start with `YYYY-MM-DD`.
+- [design-doc-scope] The design document describes decision-level content and should primarily answer "why this approach". It includes the overall goals and constraints, core approach, important behavior changes, risks and trade-offs, compatibility impact, and rejected alternatives with reasons when applicable. It should not include file-level modification steps, function-level implementation, code structure details, phase breakdowns, or specific test steps; those belong in the implementation document.
+- [design-confirmation-gate] After completing the design document, stop and wait for user confirmation. Do not make code changes before confirmation unless the user explicitly instructs otherwise. Before submitting the design for review, and after each round of user feedback, review the design within the current requirement scope for important missing or unclear rules, self-conflicts, conflicts with relevant design documents, and conflicts with the existing implementation.
+  If important conflicts affecting design correctness or implementation decisions are found, complete the rules or wait for user resolution before continuing. Do not enumerate every theoretical future extension scenario; follow [no-speculation].
+- [design-freeze] After the user confirms the design document, it becomes the design baseline for the current task by default. During implementation, do not change the design merely because a "cleaner", "more generic", or "more extensible" implementation is found. Reopen design discussion only when a design error, implementation impossibility, major risk, new user requirement, or explicit user request to adjust the design is found. Do not continue implementing away from the confirmed design before receiving renewed user confirmation.
+- [execution-doc-scope] The implementation document should contain concrete implementation details and primarily answer "how to complete it", including affected files, code change plan, phase breakdown, review checklist, verification plan, and commit plan.
+- [execution-doc-confirmation] Unless the user requests otherwise, the implementation document does not require separate confirmation by default. After design confirmation, the AI may complete the implementation document and enter the implementation phase directly.
 
 ## Bug Fix Rules
 
