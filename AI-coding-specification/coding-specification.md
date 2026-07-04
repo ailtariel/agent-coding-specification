@@ -52,6 +52,21 @@ Execution Requirements: Clarify the implementation plan and affected files befor
 - [public-contract] Do not modify public APIs, database schemas, configuration formats, or environment variable names unless explicitly requested by the user.
 - [dependency-gate] Do not introduce new dependencies. If a new dependency is truly necessary, explain the reason and wait for confirmation first.
 
+## OS and Tools
+
+Applicable Scenarios: All command execution, file reading, file writing, scripting, search, and tool usage tasks.
+
+Key Triggers: PowerShell, shell commands, local scripts, file content inspection, search, generated files, text encoding.
+
+Execution Requirements: Prefer purpose-built cross-platform tools for search and listing. Use explicit encoding options when the tool supports them and text encoding ambiguity may affect correctness.
+
+- [rg-first] For operations that `rg` is suited for, such as finding files, searching text, or counting matches, try `rg` first even on Windows unless `rg` is already known to be unavailable. Prefer `rg --files` for file discovery and `rg` for content search before falling back to PowerShell traversal or `Select-String`.
+- [powershell-utf8] When using PowerShell to read or write text files, explicitly pass `-Encoding UTF8` by default for commands that support it, such as `Get-Content`, `Set-Content`, `Add-Content`, `Out-File`, `Import-Csv`, and `Export-Csv`.
+- [powershell-raw-text] When reading a whole text file in PowerShell for analysis, prefer `Get-Content -Raw -Encoding UTF8`; without `-Raw`, PowerShell returns an array of lines and may change downstream behavior.
+- [powershell-native-quoting] Be careful with PowerShell parsing when passing regexes, pipes, quotes, braces, or semicolons to native tools. Prefer single-quoted patterns, `rg -F` for fixed-string searches, or one simple command per invocation when shell parsing could change the argument.
+- [powershell-aliases] Do not assume common Unix command names have Unix semantics in PowerShell. Commands such as `curl`, `wget`, `cat`, `ls`, and `rm` may be aliases or behave differently; prefer the explicit native command or the intended PowerShell cmdlet.
+- [rg-exit-code] Treat `rg` exit code `1` as "no matches found", not necessarily as a command failure. Exit codes greater than `1` indicate an actual error.
+
 ## Large Tasks
 
 Applicable Scenarios: Tasks expected to require phased implementation, tasks involving multiple relatively independent subtasks, or tasks where the user explicitly requests the large-task workflow.
