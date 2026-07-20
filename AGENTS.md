@@ -34,11 +34,9 @@ Agents may still implement a single-repository solution when it is genuinely the
 
 Before any implementation, code edit, or command execution related to delivery:
 
-1. Read the relevant `README.md` for the current scope or affected repository when the conversation/task is related to that scope or repository.
-2. Read `AI-coding-specification/*.md` for the current scope when the task involves code changes.
-3. For multi-repository tasks, read each affected repository's local `AGENTS.md`, `README.md`, and directly relevant documents before changing files in that repository.
-
-If additional rule files are added under `AI-coding-specification/`, list them explicitly in this section and describe when each file applies. Do not rely on wildcard reading for mandatory rules.
+1. Read the relevant `README.md` for the current scope or affected repository.
+2. Inspect the `AI-coding-specification/` directory, if it exists. If it contains any rule documents relevant to the current task, read them and treat them as mandatory for the task.
+3. For multi-repository tasks, repeat this process in each affected repository by inspecting its local `AGENTS.md`, `README.md`, and `AI-coding-specification/` directory before making changes in that repository.
 
 ## Functional Design Documents
 
