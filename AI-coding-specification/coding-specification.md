@@ -1,5 +1,5 @@
 Author: ailtariel@gmail.com
-Updated: 2026-06-12
+Updated: 2026-07-26
 
 # Repository-Level AI Coding Specification
 
@@ -94,6 +94,7 @@ Unless explicitly requested by the user, these rules take precedence over any co
 
 - [readability] Prioritize readability.
 - [english-code-text] Comments, logs, and documentation should use English by default unless explicitly requested otherwise by the user.
+- [chinese-markdown-prose-wrap] Do not hard-wrap Chinese Markdown prose to a fixed column width. Keep each paragraph and list item on one physical line unless a Markdown structural boundary, code block, table, or intentional hard break requires a new line. When formatting Chinese Markdown, use `proseWrap: never` or equivalent behavior.
 - [file-size] When a single file exceeds 500 lines, consider splitting it only if all of the following conditions are met (this is not a mandatory requirement):
   - Responsibilities are clearly mixed together
   - Splitting will not significantly increase comprehension cost or file navigation complexity
@@ -111,13 +112,13 @@ Unless explicitly requested by the user, these rules take precedence over any co
 
 ## Frontend
 
-- [frontend-library-first] If the project already uses a UI component library/framework, prioritize using library components instead of implementing custom ones, especially for complex common components such as layout containers, inputs, dialogs, menus, tables, pagination, date pickers, and uploads. Component lists and API documentation may be obtained through relevant skills. If such skills are missing, the user may be advised to add them. If skill recommendations conflict with this specification, this specification takes precedence.
-- [frontend-style-system] Prioritize the project's existing style system, including built-in component props/classes, theme tokens, CSS variables, Tailwind CSS, or existing shared styles. Avoid adding `<style>`, global CSS, or one-off style rules unless necessary.
-- [frontend-reuse-components] Prefer reusing existing components when functionality, inputs/outputs, and interaction semantics are similar. Only wrap or extract shared components when duplication scenarios are clear, responsibilities are stable, interfaces are clean, and complexity does not increase.
-- [frontend-consistency] New or modified UI should remain consistent with existing pages in information density, spacing, control sizing, interaction states, error feedback, and loading states.
-- [frontend-state-minimal]
-  Prioritize reusing existing state flow and data flow.
-  Do not introduce new global state, context, stores, or composables for localized requirements.
+- [frontend-specification] All frontend tasks must follow
+  [`web-frontend.md`](web-frontend.md). It is the authoritative
+  repository-level source for framework-neutral web frontend architecture,
+  component and library selection, feature boundaries, state flow, styling,
+  interaction, accessibility, internationalization, formatting, and
+  verification. Framework and UI-library skills supplement that specification
+  with implementation guidance and do not override it.
 
 ## Testing and Verification Constraints
 

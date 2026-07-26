@@ -63,5 +63,9 @@ Functional design tasks allow AI to proactively complete design details within e
   - Risks, trade-offs, and decisions that require user input.
   - Significant rejected alternatives and the reasons for rejecting them, when applicable.
   - Acceptance criteria sufficient to determine whether the design goal has been achieved.
+- [page-design-document] A page-specific functional design should describe:
+  - Functional modules and business components; do not enumerate pure UI primitives that have no independent functional responsibility.
+  - Data services, their responsibilities, authority, inputs, outputs, and important failure behavior.
+  - The APIs or transports used by each business data flow and how they support the page workflow.
 - [design-review] Before submitting a design for user review, and after each round of user feedback, review it within the current requirement scope for important omissions, ambiguous rules, internal conflicts, conflicts with current effective designs, and conflicts with or impact on the existing implementation. Conflicts that affect design correctness or implementation decisions must be resolved in the design or left for user decision.
 - [design-implementation-separation] Design documents must not contain file-level modification steps, function-level implementation details, implementation phases, or specific test steps. Those belong in the implementation document.

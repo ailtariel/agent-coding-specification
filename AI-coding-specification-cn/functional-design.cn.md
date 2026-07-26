@@ -1,5 +1,4 @@
-Author: ailtariel@gmail.com
-Updated: 2026-07-26
+Author: ailtariel@gmail.com Updated: 2026-07-26
 
 # 仓库级 AI 功能设计规范
 
@@ -63,5 +62,9 @@ Updated: 2026-07-26
   - 风险、取舍和需要用户决定的事项；
   - 被否决的重要替代方案及原因（适用时）；
   - 能够判断设计目标是否达成的验收标准。
+- [page-design-document] 页面功能设计应说明：
+  - 功能模块和业务组件；不罗列没有独立功能职责的纯 UI primitive。
+  - Data service 及其职责、权威边界、input、output 和重要 failure behavior。
+  - 每条业务数据流使用的 API 或 transport，以及它们如何支撑页面 workflow。
 - [design-review] 提交设计供用户审查前，以及每轮用户反馈后，必须在当前需求范围内检查重要遗漏、含糊规则、自身冲突、与当前有效设计的冲突及与现有实现的冲突或影响。影响设计正确性或实施决策的冲突必须补全或交由用户决定。
 - [design-implementation-separation] 设计文档不展开文件级修改步骤、函数级实现、实施阶段或具体测试步骤；这些内容属于实施文档。
