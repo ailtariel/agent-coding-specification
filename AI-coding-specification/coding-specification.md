@@ -10,17 +10,10 @@ Unless explicitly requested by the user, these rules take precedence over any co
 ## Rule Usage
 
 - This document is a mandatory repository-wide specification, not an on-demand skill. All code-related tasks should follow the entire document by default.
-- The "Applicable Scenarios", "Key Triggers", and "Execution Requirements" under each rule block help the AI map concrete tasks to relevant rules precisely. They are not used to exclude other applicable rules.
 - When multiple rule blocks apply to a task, all of them must be followed simultaneously. For non-security implementation decisions, weigh trade-offs according to [priority]. Security risks must follow [security-confirmation].
 - Rule tags are intended for delivery notes, reviews, and self-check references. Do not expand implementation scope merely to satisfy a tag.
 
 ## General Rules
-
-Applicable Scenarios: All AI-assisted code modification tasks.
-
-Key Triggers: Implementation, refactoring, abstraction, dependencies, public APIs, schemas, configuration, environment variables, error handling, security risks.
-
-Execution Requirements: Clarify the implementation plan and affected files before coding. Keep changes minimal and necessary. Do not introduce unconfirmed behavior, dependencies, or public contract changes.
 
 - [priority] Explicit user requirements > correctness > maintainability > minimal changes > security > style and simplicity
 - [minimal-context]
@@ -54,12 +47,6 @@ Execution Requirements: Clarify the implementation plan and affected files befor
 
 ## OS and Tools
 
-Applicable Scenarios: All command execution, file reading, file writing, scripting, search, and tool usage tasks.
-
-Key Triggers: PowerShell, shell commands, local scripts, file content inspection, search, generated files, text encoding.
-
-Execution Requirements: Prefer purpose-built cross-platform tools for search and listing. Use explicit encoding options when the tool supports them and text encoding ambiguity may affect correctness.
-
 - [rg-first] For operations that `rg` is suited for, such as finding files, searching text, or counting matches, try `rg` first even on Windows unless `rg` is already known to be unavailable. Prefer `rg --files` for file discovery and `rg` for content search before falling back to PowerShell traversal or `Select-String`.
 - [powershell-utf8] When using PowerShell to read or write text files, explicitly pass `-Encoding UTF8` by default for commands that support it, such as `Get-Content`, `Set-Content`, `Add-Content`, `Out-File`, `Import-Csv`, and `Export-Csv`.
 - [powershell-raw-text] When reading a whole text file in PowerShell for analysis, prefer `Get-Content -Raw -Encoding UTF8`; without `-Raw`, PowerShell returns an array of lines and may change downstream behavior.
@@ -68,12 +55,6 @@ Execution Requirements: Prefer purpose-built cross-platform tools for search and
 - [rg-exit-code] Treat `rg` exit code `1` as "no matches found", not necessarily as a command failure. Exit codes greater than `1` indicate an actual error.
 
 ## Large Tasks
-
-Applicable Scenarios: Tasks expected to require phased implementation, tasks involving multiple relatively independent subtasks, or tasks where the user explicitly requests the large-task workflow.
-
-Key Triggers: Large features, multi-phase implementation, multiple subtasks, implementation plans, phases.
-
-Execution Requirements: This rule defines the triggers and default workflow for large tasks. If a task triggers the large-task conditions, explicitly confirm with the user whether to use the multi-phase + automatic iterative development workflow.
 
 - [large-task-threshold] Treat a task as a large task by default if any of the following is true: it is expected to require phased implementation, it involves multiple relatively independent subtasks, or the user explicitly requests the large-task workflow. If triggered, explicitly confirm with the user whether to use the large-task multi-phase + automatic iterative development workflow.
 - [default-phase-flow] After the user confirms the large-task workflow, if the user does not provide different instructions, automatically proceed through the phases in the implementation document. Each phase does not require another confirmation after completion. If important design conflicts, omissions, or implementation blockers are discovered during implementation, pause further code changes and wait for user decision.
@@ -86,29 +67,16 @@ Execution Requirements: This rule defines the triggers and default workflow for 
 
 ## Design and Implementation Documents
 
-Applicable Scenarios: Tasks that require design documents, implementation documents, or traceable records of decisions, implementation steps, reviews, tests, and commits.
-
-Key Triggers: Feature, new module, design document, design review, implementation plan.
-
-Execution Requirements: Design documents and implementation documents should separate decisions from implementation details. Complete the design document first and wait for user confirmation. Do not make code changes before confirmation by default. After confirmation, write the implementation document and enter implementation.
-
+- [functional-design] Functional design reasoning, autonomy, scope, conflict review, and design document content must follow [`functional-design.md`](functional-design.md).
 - [design-execution-separation] In principle, design documents and implementation documents should be written separately.
 - [doc-lightweight-exception] For smaller tasks with simple design choices that are expected to be completed in one implementation pass, design and implementation documents may be merged even if [large-task-threshold] is met. The merged document should still distinguish design decisions from the implementation plan. If the task expands or requires multi-phase implementation, restore separate documents.
 - [task-doc-location] Save design and implementation documents in an existing same-type documentation path first. If none exists, use `docs/<module-or-task>/`. Design document filenames should start with `[design]`; implementation document filenames should start with `YYYY-MM-DD`.
-- [design-doc-scope] The design document describes decision-level content and should primarily answer "why this approach". It includes the overall goals and constraints, core approach, important behavior changes, risks and trade-offs, compatibility impact, and rejected alternatives with reasons when applicable. It should not include file-level modification steps, function-level implementation, code structure details, phase breakdowns, or specific test steps; those belong in the implementation document.
-- [design-confirmation-gate] After completing the design document, stop and wait for user confirmation. Do not make code changes before confirmation unless the user explicitly instructs otherwise. Before submitting the design for review, and after each round of user feedback, review the design within the current requirement scope for important missing or unclear rules, self-conflicts, conflicts with relevant design documents, and conflicts with the existing implementation.
-  If important conflicts affecting design correctness or implementation decisions are found, complete the rules or wait for user resolution before continuing. Do not enumerate every theoretical future extension scenario; follow [no-speculation].
+- [design-confirmation-gate] After completing the design document under [`functional-design.md`](functional-design.md), stop and wait for user confirmation. Do not make code changes before confirmation unless the user explicitly instructs otherwise.
 - [design-freeze] After the user confirms the design document, it becomes the design baseline for the current task by default. During implementation, do not change the design merely because a "cleaner", "more generic", or "more extensible" implementation is found. Reopen design discussion only when a design error, implementation impossibility, major risk, new user requirement, or explicit user request to adjust the design is found. Do not continue implementing away from the confirmed design before receiving renewed user confirmation.
 - [execution-doc-scope] The implementation document should contain concrete implementation details and primarily answer "how to complete it", including affected files, code change plan, phase breakdown, review checklist, verification plan, and commit plan.
 - [execution-doc-confirmation] Unless the user requests otherwise, the implementation document does not require separate confirmation by default. After design confirmation, the AI may complete the implementation document and enter the implementation phase directly.
 
 ## Bug Fix Rules
-
-Applicable Scenarios: Bug fixes, exception investigation, test failures, runtime failures, missing tools, missing configuration, inaccessible external services.
-
-Key Triggers: Bugfixes, fixes, errors, failures, exceptions, hardcoding, fallback, compatibility, degradation, bypasses.
-
-Execution Requirements: Analyze the root cause first. For complex or high-impact fixes, provide a plan before implementation. Deliveries must include root cause, solution, impact scope, and verification results.
 
 - [root-cause-first] Analyze the root cause before deciding on a fix.
 - [simple-bugfix] For simple and certain bug fixes, modifications may proceed directly after briefly explaining the root cause, solution, and affected files.
@@ -123,12 +91,6 @@ Execution Requirements: Analyze the root cause first. For complex or high-impact
 - [bugfix-delivery] Every delivery must include: root cause, solution, impact scope, and verification results.
 
 ## Code Style, Comments, and Logging
-
-Applicable Scenarios: All changes related to code, comments, logs, technical documentation, naming, formatting, and file structure.
-
-Key Triggers: Comments, logs, naming, formatting, hardcoding, oversized files, readability, sensitive fields.
-
-Execution Requirements: Keep things readable, restrained, and consistent. Avoid unrelated formatting changes. Comments should explain reasons. Logs must not expose sensitive information.
 
 - [readability] Prioritize readability.
 - [english-code-text] Comments, logs, and documentation should use English by default unless explicitly requested otherwise by the user.
@@ -149,12 +111,6 @@ Execution Requirements: Keep things readable, restrained, and consistent. Avoid 
 
 ## Frontend
 
-Applicable Scenarios: All frontend-related modifications involving pages, components, forms, layouts, styles, and interaction state.
-
-Key Triggers: UI, components, pages, forms, layouts, styles, component libraries, reusable components.
-
-Execution Requirements: Prioritize the project's existing component libraries, style systems, and components. Maintain interaction consistency. Avoid duplicate implementations and avoid introducing abstractions for one-time use.
-
 - [frontend-library-first] If the project already uses a UI component library/framework, prioritize using library components instead of implementing custom ones, especially for complex common components such as layout containers, inputs, dialogs, menus, tables, pagination, date pickers, and uploads. Component lists and API documentation may be obtained through relevant skills. If such skills are missing, the user may be advised to add them. If skill recommendations conflict with this specification, this specification takes precedence.
 - [frontend-style-system] Prioritize the project's existing style system, including built-in component props/classes, theme tokens, CSS variables, Tailwind CSS, or existing shared styles. Avoid adding `<style>`, global CSS, or one-off style rules unless necessary.
 - [frontend-reuse-components] Prefer reusing existing components when functionality, inputs/outputs, and interaction semantics are similar. Only wrap or extract shared components when duplication scenarios are clear, responsibilities are stable, interfaces are clean, and complexity does not increase.
@@ -164,12 +120,6 @@ Execution Requirements: Prioritize the project's existing component libraries, s
   Do not introduce new global state, context, stores, or composables for localized requirements.
 
 ## Testing and Verification Constraints
-
-Applicable Scenarios: All code modification deliveries, as well as testing, build, CI, and verification-related tasks.
-
-Key Triggers: Tests, verification, typecheck, lint, pytest, E2E, snapshot, CI, regression, inability to run tests, full suite.
-
-Execution Requirements: Prioritize the smallest relevant verification scope. Escalate verification levels based on risk. Final delivery must explain which verifications were performed, which were not performed, and why.
 
 - [test-addition] By default, do not add tests for low-risk mechanical modifications. When business behavior, public APIs, permissions, routes, forms, state transitions, async/concurrency/session/token logic, bugfix regressions, security, or data consistency behavior changes — or when explicitly requested by the user — prioritize adding the smallest relevant tests.
 - [reuse-tests] Reuse existing tests whenever possible; do not prioritize creating new test files.
