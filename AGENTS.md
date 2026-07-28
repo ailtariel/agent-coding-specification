@@ -36,8 +36,7 @@ Before any functional design, implementation, code edit, or command execution re
 
 1. Read the relevant `README.md` for the current scope or affected repository.
 2. Inspect the `AI-coding-specification/` directory, if it exists. If it contains a `README.md`, read it first and follow its task routing. Then read the rule documents relevant to the current task and treat them as mandatory.
-3. Read `docs/principle.md`. It is the mandatory repository-wide development design baseline for architecture, implementation, dependency selection, and delivery.
-4. For multi-repository tasks, repeat this process in each affected repository by inspecting its local `AGENTS.md`, `README.md`, `AI-coding-specification/` directory, and `docs/principle.md` before making changes in that repository.
+3. For multi-repository tasks, repeat this process in each affected repository by inspecting its local `AGENTS.md`, `README.md`, `AI-coding-specification/` directory before making changes in that repository.
 
 ## Functional Design Documents
 
