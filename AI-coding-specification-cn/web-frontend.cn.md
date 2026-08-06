@@ -87,7 +87,20 @@ application
   - 一个 feature 内的可复用模块；
   - 局部交互和 feature 私有 UI 组合。
 - Feature component 可以拥有局部样式。在业务特定样式成为稳定跨页面 pattern 前，不得将其提升为 global token 或 global class。
-- 除非能够实质降低复杂度，或隔离清晰的平台、浏览器或第三方边界，否则不要为单个调用点创建wrapper component。
+
+## 组件拆分
+
+- [web-component-split-consider] 至少满足以下任一条件时，需要考虑拆分组件：
+  - 它本身是页面上一个较大的独立职责块，例如 header、footer、dialog、navigation drawer 或 main body；
+  - 该功能块存在真实的复用需求；
+  - 功能复杂且较为独立，与父组件只有少量数据契约或依赖；
+  - 父组件在不同状态或场景下需要编排不同的子单元，并且这些单元可以按照编排边界拆分。
+- 满足以上任一条件表示必须评估组件边界，并不表示必须将组件提升到 shared 范围。仅在一个位置使用的组件应保持为所属 page 或 feature 的私有组件。
+- [web-component-split-avoid] 只有同时满足以下两个条件时，才优先考虑不拆分：
+  - 子单元没有复用需求；
+  - 子单元内容简单、必然需要与父组件进行大量数据交互或存在大量依赖，或拆分后会产生大量或跨级的 input 传递。
+- 不得仅以代码行数判断是否拆分组件。应判断拆分能否形成清晰职责，以及更小、更内聚的父子契约。
+- 不得仅为了移动 markup、增加间距或转发 input 而创建组件。单调用点组件只要满足 [web-component-split-consider]，或能隔离清晰的平台、浏览器或第三方边界，仍然适合拆分。
 
 ## Feature Module 边界
 
@@ -119,7 +132,7 @@ application
 - [web-library-first] 对 layout、form、dialog、menu、table、pagination、date input、upload、feedback 和其他常见交互，优先使用项目现有 UI 库，不要先使用原生 control 或自定义实现。
 - 当 UI 库不负责 document semantic、browser API boundary、generated content、原生 workflow 所需的 hidden input 或特定行为时，仍适合使用原生元素。
 - [web-component-reuse] 当职责、交互语义和 input/output contract 一致时，复用现有组件。
-- 只有真实复用、稳定业务语义、复杂交互或平台边界能够证明抽象合理时，才提取或包装组件。
+- 当以上组件拆分规则、稳定业务语义或平台边界能够证明边界合理时，提取或包装组件。
 - 优先使用库组件 API 和内置可访问性行为，而不是 DOM 模拟或通用容器上的 click handler。
 - [web-ui-consistency] 新增和修改的 UI 必须遵循现有的信息密度、间距、控件尺寸、交互、反馈和响应式模式。
 
