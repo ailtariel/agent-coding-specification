@@ -130,6 +130,7 @@ application
 ## 组件与 UI 库
 
 - [web-library-first] 对 layout、form、dialog、menu、table、pagination、date input、upload、feedback 和其他常见交互，优先使用项目现有 UI 库，不要先使用原生 control 或自定义实现。
+- [web-library-api-first] 使用或修改第三方 UI 库组件时，必须优先通过库的内置 API 和属性进行配置；仅当这些能力无法满足要求时，才允许使用自定义 CSS 或 JavaScript。
 - 当 UI 库不负责 document semantic、browser API boundary、generated content、原生 workflow 所需的 hidden input 或特定行为时，仍适合使用原生元素。
 - [web-component-reuse] 当职责、交互语义和 input/output contract 一致时，复用现有组件。
 - 当以上组件拆分规则、稳定业务语义或平台边界能够证明边界合理时，提取或包装组件。

@@ -173,6 +173,10 @@ application
 - [web-library-first] Use the project's existing UI library before native
   controls or custom implementations for layout, forms, dialogs, menus, tables,
   pagination, date inputs, uploads, feedback, and other common interactions.
+- [web-library-api-first] When using or modifying third-party UI library
+  components, first configure them through the library's built-in APIs and
+  properties. Custom CSS or JavaScript is allowed only when those capabilities
+  cannot satisfy the requirement.
 - Native elements remain appropriate for document semantics, browser API
   boundaries, generated content, hidden inputs required by native workflows, or
   behavior the UI library does not own.
