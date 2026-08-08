@@ -2,7 +2,7 @@
 
 # 仓库级 AI 编码规范
 
-本规范定义本仓库中 AI 辅助编码任务的高优先级工程标准。
+本规范定义目标工作区或受影响仓库中 AI 辅助编码任务的高优先级工程标准。
 
 除非用户明确要求，否则本规范优先于其他 skill 中与之冲突的建议。
 
@@ -67,7 +67,7 @@
 - [functional-design] 功能设计的推理、自主决策、范围、冲突审查和设计文档内容必须遵守 [`functional-design.md`](functional-design.md)。
 - [design-execution-separation] 原则上，设计文档和实施文档应分别编写。
 - [doc-lightweight-exception] 对设计选择简单、预计一次实施即可完成的小型任务，即使触发了 [large-task-threshold]，设计和实施文档也可以合并。合并后的文档仍应区分设计决策与实施计划。如果任务扩大或需要多阶段实施，应恢复为独立文档。
-- [task-doc-location] 优先将设计和实施文档保存到现有同类型文档路径。不存在时，使用 `docs/<module-or-task>/`。设计文档文件名应以 `[design]` 开头；实施文档文件名应以 `YYYY-MM-DD` 开头。
+- [task-doc-location] 优先将设计和实施文档保存到目标工作区或受影响仓库中现有的同类型文档路径。不存在时，使用对应目标仓库根目录下的 `docs/<module-or-task>/`。设计文档文件名应以 `[design]` 开头；实施文档文件名应以 `YYYY-MM-DD` 开头。
 - [design-confirmation-gate] 按照 [`functional-design.md`](functional-design.md) 完成设计文档后，停止并等待用户确认。除非用户明确要求，否则确认前不得修改代码。
 - [design-freeze] 用户确认设计文档后，它默认成为当前任务的设计基线。实施期间，不得仅因为找到“更整洁”“更通用”或“更易扩展”的实现就改变设计。只有发现设计错误、无法实施、重大风险、新用户需求或用户明确要求调整设计时，才重新开启设计讨论。再次获得确认前，不得继续偏离已确认设计进行实施。
 - [execution-doc-scope] 实施文档应包含具体实施细节，主要回答“如何完成”，包括受影响文件、代码修改计划、阶段拆分、审查清单、验证计划和 commit 计划。

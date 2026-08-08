@@ -1,6 +1,13 @@
 # AI Coding Specification
 
-This directory contains repository-level specifications for AI-assisted functional design and implementation. Before starting a task, classify its type and read the corresponding specifications.
+This directory contains default specifications for AI-assisted functional design and implementation in the target workspace or affected repository. Before starting a task, classify its type and read the corresponding specifications.
+
+## Path Resolution And Target Scope
+
+- Unless a rule explicitly says otherwise, references to the repository, project, workspace, current directory, root, source tree, configuration, tests, or documentation mean the target workspace or affected repository where the task is being performed, not the repository that stores this canonical specification.
+- Relative implementation or artifact paths such as `docs/`, `src/`, `tests/`, `backend/`, and `web/` must be resolved from the applicable target workspace or affected repository root. For multi-repository tasks, resolve each path within the repository that owns the affected artifact.
+- Relative Markdown links between specification documents, such as [`coding-specification.md`](coding-specification.md), are the exception: resolve them relative to the specification file containing the link.
+- When the task is maintaining this specification repository itself, this repository is also the target repository, so its workspace paths apply normally.
 
 ## Task Types and Specification Routing
 

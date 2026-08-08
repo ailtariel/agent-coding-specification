@@ -3,7 +3,7 @@ Updated: 2026-07-26
 
 # Repository-Level AI Coding Specification
 
-This specification defines high-priority engineering standards for AI-assisted coding tasks within this repository.
+This specification defines high-priority engineering standards for AI-assisted coding tasks within the target workspace or affected repository.
 
 Unless explicitly requested by the user, these rules take precedence over any conflicting suggestions from other skills.
 
@@ -70,7 +70,7 @@ Unless explicitly requested by the user, these rules take precedence over any co
 - [functional-design] Functional design reasoning, autonomy, scope, conflict review, and design document content must follow [`functional-design.md`](functional-design.md).
 - [design-execution-separation] In principle, design documents and implementation documents should be written separately.
 - [doc-lightweight-exception] For smaller tasks with simple design choices that are expected to be completed in one implementation pass, design and implementation documents may be merged even if [large-task-threshold] is met. The merged document should still distinguish design decisions from the implementation plan. If the task expands or requires multi-phase implementation, restore separate documents.
-- [task-doc-location] Save design and implementation documents in an existing same-type documentation path first. If none exists, use `docs/<module-or-task>/`. Design document filenames should start with `[design]`; implementation document filenames should start with `YYYY-MM-DD`.
+- [task-doc-location] Save design and implementation documents in an existing same-type documentation path in the target workspace or affected repository first. If none exists, use `docs/<module-or-task>/` under the applicable target repository root. Design document filenames should start with `[design]`; implementation document filenames should start with `YYYY-MM-DD`.
 - [design-confirmation-gate] After completing the design document under [`functional-design.md`](functional-design.md), stop and wait for user confirmation. Do not make code changes before confirmation unless the user explicitly instructs otherwise.
 - [design-freeze] After the user confirms the design document, it becomes the design baseline for the current task by default. During implementation, do not change the design merely because a "cleaner", "more generic", or "more extensible" implementation is found. Reopen design discussion only when a design error, implementation impossibility, major risk, new user requirement, or explicit user request to adjust the design is found. Do not continue implementing away from the confirmed design before receiving renewed user confirmation.
 - [execution-doc-scope] The implementation document should contain concrete implementation details and primarily answer "how to complete it", including affected files, code change plan, phase breakdown, review checklist, verification plan, and commit plan.

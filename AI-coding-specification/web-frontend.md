@@ -4,9 +4,9 @@ Updated: 2026-07-26
 # Web Frontend Coding Specification
 
 This specification defines mandatory, framework-neutral engineering rules for
-web frontend work in this repository. It applies to pages, layouts, components,
-styles, state, data synchronization, interaction, accessibility, and frontend
-development tooling.
+web frontend work in the target workspace or affected repository. It applies to
+pages, layouts, components, styles, state, data synchronization, interaction,
+accessibility, and frontend development tooling.
 
 It extends [`coding-specification.md`](coding-specification.md). Project design
 documents define product-specific behavior, while framework and UI-library

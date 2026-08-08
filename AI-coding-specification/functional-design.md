@@ -3,7 +3,7 @@ Updated: 2026-07-26
 
 # Repository-Level AI Functional Design Specification
 
-This specification defines high-priority rules for AI-assisted functional design tasks within this repository.
+This specification defines high-priority rules for AI-assisted functional design tasks within the target workspace or affected repository.
 
 Functional design tasks allow AI to proactively complete design details within established product goals and system architecture. This autonomy does not authorize the AI to expand requirements or alter confirmed designs during implementation.
 

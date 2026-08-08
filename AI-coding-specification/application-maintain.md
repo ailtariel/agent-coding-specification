@@ -1,5 +1,11 @@
 # Application Maintenance
 
+All relative file and directory locations in this document, including
+`README.md`, `.env*`, `backend/`, and `web/`, are resolved from the root of the
+target workspace or affected repository that owns the application artifact.
+They never refer to the repository that stores this canonical specification
+unless that repository is itself the task target.
+
 ## Variable Management
 
 Before adding, reading, moving, or removing any configuration value, first

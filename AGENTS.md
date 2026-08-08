@@ -40,7 +40,7 @@ Before any functional design, implementation, code edit, or command execution re
 
 ## Functional Design Documents
 
-The `docs/` directory may contain functional design documents, product decisions, workflow descriptions, or feature-specific constraints.
+The `docs/` directory under the current workspace or affected repository may contain functional design documents, product decisions, workflow descriptions, or feature-specific constraints. It does not mean the canonical specification repository's `docs/` directory unless that repository is itself the task target.
 
 Before the following task types, agents must search relevant `docs/` directories and read the directly related documents before changing code:
 
