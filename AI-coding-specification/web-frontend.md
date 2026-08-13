@@ -1,5 +1,5 @@
 Author: ailtariel@gmail.com
-Updated: 2026-07-26
+Updated: 2026-08-14
 
 # Web Frontend Coding Specification
 
@@ -245,6 +245,15 @@ application
 - Evaluate fixed sizes, fixed heights, and absolute positioning on small
   screens, landscape orientation, touch devices, content growth, and system
   safe areas.
+
+## CSS Layout
+
+- [web-layout-flex-before-grid] When the existing UI library's layout
+  components do not apply, prefer normal block flow and Flexbox for CSS layout.
+  Use Grid only when the layout has genuinely two-dimensional row-and-column
+  relationships that require coordinated control. Do not use Grid for simple
+  vertical stacking, single-axis arrangement, alignment, or spacing, and do not
+  mechanically make Grid the default layout across container hierarchy levels.
 
 ## Style Boundaries
 
