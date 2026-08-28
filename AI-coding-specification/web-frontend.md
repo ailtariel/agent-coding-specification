@@ -1,5 +1,5 @@
 Author: ailtariel@gmail.com
-Updated: 2026-08-14
+Updated: 2026-08-27
 
 # Web Frontend Coding Specification
 
@@ -354,6 +354,17 @@ application
 
 - Follow the verification ladder, test-addition rules, and reporting
   requirements in `coding-specification.md`.
+- [web-persistent-test-scope] Permanent web test suites and formal test-case
+  directories may contain only data-logic and functional-behavior tests. Tests
+  of UI structure, presentation, styling, or interaction must not be retained
+  as permanent regression tests because those UI/UX details change too
+  frequently for old cases to remain valid assets.
+- [web-temporary-ui-tests] Tests and supporting assets created to verify UI
+  structure, presentation, styling, or interaction are one-time development
+  artifacts. Store them in a temporary directory outside formal test-case
+  directories, never include them in the corresponding feature commit, and
+  delete them automatically after the relevant verification is complete and
+  before creating that commit.
 - Prefer the smallest relevant combination of static reasoning, formatting,
   type checking, linting, targeted tests, build verification, and browser or
   visual checks.
