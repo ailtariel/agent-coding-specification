@@ -1,4 +1,4 @@
-作者：ailtariel@gmail.com 更新日期：2026-07-26
+作者：ailtariel@gmail.com 更新日期：2026-09-10
 
 # Web 前端编码规范
 
@@ -22,103 +22,20 @@
 - [web-single-owner] 每个 application shell、layout region、page region、主滚动容器、overlay、状态来源和反馈渠道必须有一个明确所有者。
 - [web-locality] 页面特定的行为、状态、样式和组件应留在最近的 feature 或 page 边界内。只有形成真实的跨页面职责后，才提升其层级。
 
-## Application、Layout 与 Page 边界
+## 文件组织与职责边界
 
-使用 application / layout / page 层次：
+- [web-project-structure] 沿用项目及框架既定的目录约定，按业务职责聚合相关文件；只创建当前需要的目录和层次，不为套用模板重排项目或拆出仅作透传的文件。
+- [web-application-owner] Application 负责应用启动、全局配置和跨页面能力，不承载具体页面的内容与业务操作。
+- [web-layout-owner] Layout 负责共享导航、页头等应用外壳及页面出口，不承载页面业务；页面不得重复实现所属 layout 已提供的外壳。
+- [web-page-owner] Page 或相关页面组负责自身的内容组合、业务操作和局部状态；私有组件、类型、数据访问与样式就近组织，不分散到全局目录。
+- [web-component-module-contract] Component 负责展示与交互，可以拥有局部交互状态；module 拥有业务规则、数据和流程，可以包含组件；lib 提供与具体业务无关的技术能力。文件按其实际职责归属，不按大小或名称归类。
+- [web-shared-boundary] 仅在出现真实的跨功能复用时，将相应组件或模块及其私有依赖移入共享范围；共享代码通过公开接口供使用方调用，不反向依赖具体页面的私有实现。
 
-```text
-application
-+-- layout 1
-|   +-- page 1.1
-|   +-- page 1.2
-+-- layout 2
-    +-- page 2.1
-    +-- page 2.2
-```
+## 组件抽取
 
-### Application 边界
-
-- [web-application-owner] Application 边界可以负责：
-  - 应用级 runtime provider 和 service；
-  - 全局模块挂载和初始化；
-  - 顶层 overlay；
-  - theme、language、timer 和其他跨页面能力；
-  - 全局 message、dialog、bottom sheet、snackbar 和其他跨页面交互。
-- Application 边界不得负责：
-  - 具体页面内容；
-  - 页面 form、filter 或 list；
-  - 页面级 dialog；
-  - 页面业务交互。
-
-### Layout 边界
-
-- [web-layout-owner] Layout 负责一个稳定的 application shell，并可以负责：
-  - 子 route 或 page-content outlet；
-  - navigation、drawer、header、footer 和其他跨页面 shell region；
-  - 共享 layout 边界；
-  - 根据 route metadata 得出的 shell 显示规则。
-- Layout 不得负责：
-  - 页面业务逻辑；
-  - 页面级状态或 action；
-  - 通过 route name 分支实现页面业务行为。
-- 共享 navigation、drawer、header、footer 和其他 shell region 应作为 reusable shell component，再由 layout 组合。
-- 一个 application 可以有多个 layout。除非 route 明确切换到其他 layout，否则 page 不得重建已经由 application 或 layout 负责的 shell region。
-
-### Page 边界
-
-- [web-page-owner] Page 负责：
-  - feature 内容；
-  - 页面级状态和 action；
-  - 页面内容容器、padding 和局部 layout；
-  - 页面剩余内容区域和主页面滚动行为。
-- Page 不得重复 navigation、drawer、header、footer、global overlay 或上层已经负责的 global scroll container。
-- 避免仅复制 application 或 layout 职责的 page wrapper。
-
-## Shared Component 与 Feature Component
-
-- [web-shared-component] 当一个 UI 结构或交互模式存在多个真实使用方且职责稳定时，提取 shared component。
-- Shared component 应：
-  - 通过有文档说明的 input、output 和 extension point 暴露变化；
-  - 避免 route name 或 page name 分支；
-  - 保持与单一业务领域弱绑定，除非它被明确设计为跨 feature 业务组件。
-- 不同使用方需要不同 action 或局部内容时，应提供清晰的 extension point，而不是增加 consumer-specific 分支。
-- [web-feature-component] Feature component 可以负责：
-  - 一个独立业务能力；
-  - 一个 feature 内的可复用模块；
-  - 局部交互和 feature 私有 UI 组合。
-- Feature component 可以拥有局部样式。在业务特定样式成为稳定跨页面 pattern 前，不得将其提升为 global token 或 global class。
-
-## 组件拆分
-
-- [web-component-split-consider] 至少满足以下任一条件时，需要考虑拆分组件：
-  - 它本身是页面上一个较大的独立职责块，例如 header、footer、dialog、navigation drawer 或 main body；
-  - 该功能块存在真实的复用需求；
-  - 功能复杂且较为独立，与父组件只有少量数据契约或依赖；
-  - 父组件在不同状态或场景下需要编排不同的子单元，并且这些单元可以按照编排边界拆分。
-- 满足以上任一条件表示必须评估组件边界，并不表示必须将组件提升到 shared 范围。仅在一个位置使用的组件应保持为所属 page 或 feature 的私有组件。
-- [web-component-split-avoid] 只有同时满足以下两个条件时，才优先考虑不拆分：
-  - 子单元没有复用需求；
-  - 子单元内容简单、必然需要与父组件进行大量数据交互或存在大量依赖，或拆分后会产生大量或跨级的 input 传递。
-- 不得仅以代码行数判断是否拆分组件。应判断拆分能否形成清晰职责，以及更小、更内聚的父子契约。
-- 不得仅为了移动 markup、增加间距或转发 input 而创建组件。单调用点组件只要满足 [web-component-split-consider]，或能隔离清晰的平台、浏览器或第三方边界，仍然适合拆分。
-
-## Feature Module 边界
-
-- [web-feature-module] 项目使用模块化结构时，按 feature module 组织产品或业务能力。
-- Feature module 可以包含：
-  - page 和 route-level UI；
-  - domain type；
-  - feature state；
-  - repository 或 data-access adapter；
-  - service；
-  - feature-level stateful utility；
-  - feature 私有 component。
-- Feature 的 page、domain data flow、state、repository、service、stateful utility 和私有 component 应放在最近的 feature 边界内。
-- 通用 UI component 区域可以包含页面结构和小型局部交互，但不得拥有大量 domain data flow、persistence、repository、service 或 business workflow。
-- Shared component 区域只存放被多个 feature 复用且不绑定单一业务领域的组件。
-- Shared library 区域只存放跨 feature 逻辑，不得放置 page 或 UI component。
-- 只被单个文件使用的 type 应靠近该文件。被多个文件共享的 type 应移动到最近的 feature-level 或 responsibility-specific type module，不得放入无所不包的 global types 文件。
-- 遵循目标项目现有目录名称。不得从通用示例向项目强加框架特定目录结构。
+- [web-component-split-consider] 当一部分内容具有独立职责、真实复用需求、可独立理解的复杂逻辑，或需要由父级独立编排时，应评估抽取为组件；抽取后应形成清晰且内聚的边界，单一使用方的组件保留在所属功能内。
+- [web-component-split-avoid] 没有复用需求，且内容简单或与父级高度耦合、拆分会造成大量依赖传递时，优先保持在原组件中；不得仅为减少文件行数、移动 markup 或增加一层包装而抽取。
+- [web-component-contract] 抽取组件或模块时，通过明确的输入、输出和扩展点表达变化，迁移其完整职责及自有依赖；不得只共享外观而复制同一业务逻辑，也不得让共享实现通过页面名称或路由分支适配使用方。
 
 ## API 访问与 Transport 边界
 
@@ -127,26 +44,20 @@ application
 - [web-api-address] Feature code 应使用相对、path-only API route。Application base URL、origin 和开发代理目标属于 bootstrap 或 configuration 边界，不得在 feature code 中 hardcode。
 - [web-transport-exception] Feature 确实需要 absolute URL、独立 client 或不同 transport 时，实施前记录原因、所有权和影响。
 
-## 组件与 UI 库
+## 组件复用与 UI 库
 
-- [web-library-first] 对 layout、form、dialog、menu、table、pagination、date input、upload、feedback 和其他常见交互，优先使用项目现有 UI 库，不要先使用原生 control 或自定义实现。
-- [web-library-api-first] 使用或修改第三方 UI 库组件时，必须优先通过库的内置 API 和属性进行配置；仅当这些能力无法满足要求时，才允许使用自定义 CSS 或 JavaScript。
-- 当 UI 库不负责 document semantic、browser API boundary、generated content、原生 workflow 所需的 hidden input 或特定行为时，仍适合使用原生元素。
-- [web-component-reuse] 当职责、交互语义和 input/output contract 一致时，复用现有组件。
-- 当以上组件拆分规则、稳定业务语义或平台边界能够证明边界合理时，提取或包装组件。
-- 优先使用库组件 API 和内置可访问性行为，而不是 DOM 模拟或通用容器上的 click handler。
-- [web-ui-consistency] 新增和修改的 UI 必须遵循现有的信息密度、间距、控件尺寸、交互、反馈和响应式模式。
+- [web-reuse-order] 实现所需组件或业务能力前，按以下顺序查找并选择：项目内可直接复用的组件/模块 → 将项目内职责相同的已有实现抽取为可复用组件/模块 → 查询项目 UI 库中的可用组件 → 自定义实现。只有前一层没有职责匹配且适合复用的方案时，才进入下一层，不得跳过查找而直接手写。
+- [web-library-api-first] 使用 UI 库组件时，先通过其公开 API 和扩展接口满足需求；只有公开能力不足时才增加必要的自定义样式或行为，并保留组件原有的交互与可访问性语义，不另写一套 DOM 或事件机制替代它。
+- [web-ui-consistency] 新增和修改的 UI 必须遵循项目既有的信息密度、间距、控件尺寸、交互、反馈和响应式模式；自定义实现也不例外。
 
-## 状态、数据同步与反馈
+## 数据来源、数据流与反馈
 
-- [web-state-source] 将项目选定的 framework state、store 或 query cache 视为 UI 响应式来源。Mutation 后不得仅为了强制渲染更新而 reload 数据。
-- [web-state-minimal] 局部 UI state 应保持局部。只有多个所有者确实需要同一个来源和生命周期时，才引入 shared 或 global state。
-- 远程数据和 cache lifecycle 使用既有的 server-state 或 data-access layer。没有明确的所有权理由时，不得把 server state 复制到第二套 global state system。
-- Persistent mutation 的所有者必须在成功后更新或失效自身的权威 state 及直接相关 state。
-- Workflow 支持 cancel、reset、dirty state 或延迟保存时，应将 editing buffer 与权威 persisted state 分离。
-- Feature-scoped singleton state 只有在共享生命周期明确、能够避免真实的重复 setup，并保持在 feature 边界内时才允许使用。
-- [web-feedback-owner] 字段校验和页面局部反馈由对应 form 或 page 负责。
-- 系统级操作反馈、global error、confirmation workflow、toast/snackbar message 和跨页面 prompt 应通过既有的应用级反馈所有者处理。
+- [web-state-source] 同一份业务数据应有明确的权威来源，需要共享它的组件从该来源读取，不得为同一职责另建互不联动的可写状态。调用同一段可复用逻辑不等于共享状态，应确认实际使用的是同一数据来源。
+- [web-derived-state] 展示值和派生值应从源数据计算，并随源数据变化自动更新；不得通过额外可写副本和人工同步维护本可直接派生的数据。
+- [web-state-minimal] 状态放在能够满足其使用范围的最近所有者中；局部状态保持局部，需要共享时再提升，不为代码复用而默认引入全局状态。
+- [web-editing-buffer] 需要独立编辑、取消或延迟提交的内容，可以建立编辑副本，但必须与已保存数据区分，并明确初始化、提交和丢弃方式；不能将编辑过程直接作用于共享的已保存数据。
+- [web-state-update] 数据修改应经过其所有者提供的操作，并通过项目既有响应式机制更新或失效相关来源，使消费者获得结果；不得依靠直接修改 DOM、重复维护副本或强制刷新页面来掩盖数据流断开。
+- [web-feedback-owner] 字段校验和页面局部反馈由对应 form 或 page 负责；系统级操作反馈、全局错误和跨页面提示通过应用级反馈机制处理，避免各处重复实现。
 - Loading、empty、error、disabled、selected、success 和 stale state 必须是交互的明确组成部分，而不是偶然出现的渲染分支。
 
 ## Dialog 与 Popup Action
@@ -166,22 +77,17 @@ application
 - Table、editor、preview、log 或 virtualized collection 等职责明确的局部区域可以使用 local scroll container，但不得意外替代 page 的主滚动职责。
 - 评估 fixed size、fixed height 和 absolute positioning 对小屏、横屏、touch device、内容增长和系统 safe area 的影响。
 
-## 样式边界
+## CSS 与样式归属
 
-- [web-style-scope] Global style 负责统一基础外观。Page-local 和 component-local style 只能影响自身边界。
-- 根据职责使用项目既有样式系统：
-  - 跨页面视觉语义：theme 或 design token；
-  - 稳定的跨页面 component 行为：component default 或 shared component；
-  - 小型局部 layout 调整：现有 utility class；
-  - page 或 component 局部行为：locally scoped style；
-  - 大范围 global CSS 或库内部 override：必须说明原因并限制范围的最后手段。
-- 不得复制已经由 global theme、component default、framework variable 或 shared component 管理的属性。
-- 只有跨页面视觉语义或 component 约定，才可以提升为 global token、global default、global class 或 shared component。
-- 不得为单页例外创建 global token 或 default。
-- [web-style-colocation] 根据项目既有结构，将 page-specific、component-specific 和 feature-specific style 放在对应 page、component 或 feature 附近。
-- 不得在 global stylesheet 中持续累积 page 或 component selector。修改 legacy global selector 时，如果迁移属于当前任务范围，应将直接相关的局部样式移回其所有者。
-- 间距和尺寸应施加在负责布局的 element 或 component 上。避免只负责一个 margin、padding、flex、grid 或 width 规则的 wrapper。
-- 当现有 semantic token 或响应式行为能够表达需求时，避免 hardcoded color 和 fixed size。真实产品、浏览器、编辑器或平台约束仍可使用固定值。
+- [web-style-colocation] 组件的 DOM 与私有样式由同一组件负责，按框架约定放在一起；抽取或移动组件时同步处理其私有样式，不得仅为缩短文件而将样式拆入无关文件。
+- [web-style-scope] 全局样式只承载应用基础样式和明确的共享视觉规则；页面或组件的私有样式限制在自身作用域，不得为局部需求将其提升到全局。
+- [web-style-reuse] 已有 theme、design token、组件默认值或共享组件负责的样式，应直接复用其配置；只有形成稳定的共享视觉语义时才新增公共配置，不为单页例外创建全局 token 或 default。
+- [web-style-replacement] 修改样式时定位并修改原有声明，清理被替代的规则；不得不断追加重复声明、提高选择器优先级或使用强制覆盖来抵消旧实现。主题、响应式断点和交互状态所需的明确样式变体可以保留。
+- [web-style-layout] 间距和尺寸施加在实际负责布局的元素或组件上，不为单个样式属性增加包装层；优先使用既有语义配置和响应式能力，确有产品或平台约束时可以使用固定值。
+
+## 移除废弃实现
+
+- [web-remove-obsolete] 功能或视觉结构被移除、替换时，同步清理本次变更涉及且不再使用的 DOM、样式、状态、逻辑和引用，不得以永久隐藏旧节点代替移除；仍有明确交互用途的临时隐藏不属于废弃实现。
 
 ## 交互、表单与可访问性
 
@@ -215,17 +121,16 @@ application
 - 不得手工对齐源码，也不得为规范单个孤立偏好而修改 formatter 配置。
 - 格式化修改必须限制在任务明确涉及的前端文件内。
 
-## 本地开发服务器
+## 测试用例设计与使用
 
-- [web-dev-server] 当运行时或视觉验证需要时，AI agent 可以启动本地前端服务器。
-- Agent 启动的任何服务器必须在交付前停止。
-- 不得遗留后台前端进程。
-
-## 测试与验证
-
-- 遵守 `coding-specification.md` 中的 verification ladder、test-addition 规则和报告要求。
-- 优先使用静态推理、格式化、typecheck、lint、targeted test、build verification 和 browser 或 visual check 的最小相关组合。
-- 纯视觉修改默认不要求自动化测试，但仍应在相关时检查响应式布局、键盘交互、焦点行为以及 loading、empty、error 和 disabled state。
+- [web-persistent-test-scope] 长期保留的前端用例应验证数据流或稳定业务行为，不固化 DOM 结构、样式、展示文案、截图和 UI/UE 交互用例。按断言内容而不是所用工具分类，使用浏览器或挂载组件本身不决定用例是否值得保留。
+- [web-data-flow-tests] 数据流测试应覆盖当前改动涉及的数据输入、处理、状态变化及消费者获得的结果；风险跨越多个环节时，验证必要的协作关系，不能以单个函数正确或一次调用发生代替整条数据流正确。
+- [web-test-real-implementation] 测试必须执行真实被测逻辑；可以替换测试范围之外的依赖，但不得 mock 掉要验证的数据处理、状态变化或同步过程，也不得在测试中另写一份实现代替被测代码。
+- [web-test-oracle] 测试期望应来自需求和业务契约，并能区分正确与错误行为；不得照抄当前实现、用待测代码生成期望值，或通过匹配源码写法证明功能正确。
+- [web-test-contract-stability] 断言应针对业务结果，不锁定变量名、内部调用步骤或组件组织方式；业务契约不变的重构不应要求改变测试期望，测试失败也不能通过迎合当前实现来消除。
+- [web-test-scope] 按当前变更的风险和直接影响选择必要用例，覆盖相关的正常、异常和边界行为；优先复用已有用例，不以数量或覆盖率代替测试价值，不为测试方便新增生产抽象。
+- [web-temporary-ui-tests] UI/UE 在本次开发中通过手工、浏览器或临时自动化验证；临时用例及辅助资产放在正式测试目录之外，不进入功能提交，并在验证完成后清理。UI/UE 不固化不代表可以省略验收。
+- [web-verification] 遵守通用规范的验证范围与报告要求，选择能够证明本次改动正确的最小检查组合；区分静态检查、业务测试与 UI/UE 验收各自的覆盖能力，报告实际执行和未验证的部分。
 
 ## 最终审查
 
@@ -234,12 +139,12 @@ application
 1. Application、layout、page、feature 和 shared component 职责各自只有一个明确所有者。
 2. Feature module 边界没有让 domain data flow 和 business workflow 进入通用 UI component 或 shared library 区域。
 3. Page 和 component 通过既有 API layer 和 shared client 访问服务，没有 hardcoded origin 或 feature-local transport duplication。
-4. 新增自定义实现前，已优先复用现有 library component、shared component、状态流和样式模式。
-5. Persistent mutation 会更新或失效权威响应式 state。
+4. 组件或模块选型遵循项目直接复用、已有实现抽取、查询 UI 库、自定义实现的顺序。
+5. 共享数据来源一致，派生值保持响应式关系，修改会更新或失效相应来源。
 6. 局部反馈和系统级反馈使用正确的所有者。
 7. Dialog action order 遵循本规范或已确认的产品例外。
 8. 主滚动和局部滚动边界清晰、支持响应式，并兼容要求的文本方向。
-9. 样式与其所有者放在一起，并位于最窄的正确作用域，没有可避免的 global override、一次性 token 或 wrapper element。
+9. 私有样式跟随组件且作用域明确，没有重复覆盖或以永久隐藏代替移除的废弃实现。
 10. Form、overlay、icon control、焦点、键盘交互和输入法编辑器行为保持可访问。
 11. UI chrome 和后端提供的业务内容遵守正确的国际化边界。
-12. 已完成并报告所需的格式化、类型、测试、构建和视觉验证。
+12. 测试验证真实数据流和业务结果，UI/UE 仅作当次验收，已报告实际验证范围。
