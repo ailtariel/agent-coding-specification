@@ -1,4 +1,4 @@
-作者：ailtariel@gmail.com 更新日期：2026-09-10
+作者：ailtariel@gmail.com 更新日期：2026-09-17
 
 # Web 前端编码规范
 
@@ -23,6 +23,35 @@
 - [web-locality] 页面特定的行为、状态、样式和组件应留在最近的 feature 或 page 边界内。只有形成真实的跨页面职责后，才提升其层级。
 
 ## 文件组织与职责边界
+
+以下示例展示文件归属，`*` 表示由技术栈决定的文件扩展名。目录和文件按需创建，已有等价结构或框架约定时沿用原结构。
+
+```text
+src/
+├── layouts/
+│   └── {layout}/
+├── pages/
+│   └── {page-or-page-group}/
+│       ├── components/
+│       │   └── {component}/
+│       ├── modules/
+│       │   └── {module}/
+│       ├── Page.*
+│       ├── types.*
+│       ├── store.*
+│       ├── service.*
+│       └── useXxx.*
+├── shared/
+│   ├── components/
+│   │   └── {component}/
+│   ├── modules/
+│   │   └── {module}/
+│   └── libs/
+├── routes/
+└── stores/
+```
+
+页面和模块自己的状态、类型及数据访问文件跟随其所有者；顶层 `stores/` 只放应用级状态。组件的实现和私有样式放在对应 `{component}/` 内，简单组件也可直接平铺。
 
 - [web-project-structure] 沿用项目及框架既定的目录约定，按业务职责聚合相关文件；只创建当前需要的目录和层次，不为套用模板重排项目或拆出仅作透传的文件。
 - [web-application-owner] Application 负责应用启动、全局配置和跨页面能力，不承载具体页面的内容与业务操作。
