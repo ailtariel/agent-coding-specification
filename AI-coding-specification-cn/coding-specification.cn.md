@@ -29,10 +29,10 @@
   - 不得仅因为“未来可能有用”“未来可能需要扩展”或“顺便改善结构”而重构现有代码。
   - 没有明确计划或需求来源时，不得添加 TODO/FIXME 注释。
 - [no-extra-abstraction] 不得引入不必要的抽象层，包括不必要的 class、interface、wrapper 或 helper。
-- [abstraction-exception] 只有同时满足以下所有条件时才允许抽象或提取：行为保持不变、可读性不降低、代码总行数显著减少。如果行数反而增加，多数情况下应避免抽象。
-  - 优先复用现有 utility。新增非 UI reusable abstraction 时必须满足本规则。
-  - [web-component-decomposition-exception] Web UI 组件拆分遵循 [`web-frontend.md`](web-frontend.md)。满足 [web-component-split-consider] 的组件拆分不要求减少代码总行数，但必须保持行为不变、维持或提高可读性，并形成清晰的职责边界。
+- [abstraction-exception] 本规则仅适用于后端代码。只有同时满足以下所有条件时才允许抽象或提取：行为保持不变、可读性不降低、代码总行数显著减少。如果行数反而增加，多数情况下应避免抽象。
+  - 优先复用现有 utility。只有满足本规则时，才允许提取新的可复用组件。
 - [validation-boundary] 避免过度防御式编程：校验外部输入，信任内部数据流。外部输入应只在入口校验；内部流程应遵循既有契约，不得重复 fallback 处理。每条执行链中的外部输入只能校验一次。
+- [wrapper-pass-through] 包装函数、对象或服务调用时，默认原样透传其返回值和错误，并保留原有的错误传播方式。没有明确的需求或设计依据时，不得筛选字段、重构或二次包装返回结构、替换错误，或修改原始返回数据。确需转换时，例如适配已定义的契约或对敏感信息脱敏，只能进行该目的所必需的变更，保留其余信息和错误语义。
 - [no-silent-failure] 禁止静默失败。除非用户明确同意降级行为，否则应通过日志或返回响应清晰暴露错误。
 - [api-error-detail] 返回 API 错误响应时，只要来源中存在 `error`、`text` 或 `message` 等有意义的错误码或错误文本，就应保留。内容包含敏感信息时，返回前必须脱敏。
 - [try-catch] 不得过度使用 try...catch。只在以下情况使用：

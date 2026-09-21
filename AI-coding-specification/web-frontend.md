@@ -1,401 +1,136 @@
 Author: ailtariel@gmail.com
-Updated: 2026-08-27
+Updated: 2026-09-17
 
 # Web Frontend Coding Specification
 
-This specification defines mandatory, framework-neutral engineering rules for
-web frontend work in the target workspace or affected repository. It applies to
-pages, layouts, components, styles, state, data synchronization, interaction,
-accessibility, and frontend development tooling.
+This specification defines mandatory, framework-neutral engineering rules for web frontend work in the target workspace or affected repository. It applies to pages, layouts, components, styles, state, data synchronization, interaction, accessibility, and frontend development tooling.
 
-It extends [`coding-specification.md`](coding-specification.md). Project design
-documents define product-specific behavior, while framework and UI-library
-skills provide implementation details. Neither may weaken this specification.
+It extends [`coding-specification.md`](coding-specification.md). Project design documents define product-specific behavior, while framework and UI-library skills provide implementation details. Neither may weaken this specification.
 
 ## Rule Usage
 
-- This document is mandatory for all web frontend tasks, regardless of the
-  framework, rendering mode, component library, or state-management library.
-- Apply all relevant rule blocks together. When this document conflicts with a
-  project design decision confirmed by the user, stop and confirm the intended
-  exception before implementation.
-- Rule tags are intended for plans, reviews, delivery notes, and self-checks.
-  Do not expand implementation scope merely to satisfy a tag.
-- Framework-specific APIs, file types, macros, hooks, composables, components,
-  and formatting exceptions belong in the corresponding framework or UI-library
-  skill, not in this document.
+- This document is mandatory for all web frontend tasks, regardless of the framework, rendering mode, component library, or state-management library.
+- Apply all relevant rule blocks together. When this document conflicts with a project design decision confirmed by the user, stop and confirm the intended exception before implementation.
+- Rule tags are intended for plans, reviews, delivery notes, and self-checks. Do not expand implementation scope merely to satisfy a tag.
+- Framework-specific APIs, file types, macros, hooks, composables, components, and formatting exceptions belong in the corresponding framework or UI-library skill, not in this document.
 
 ## General Rules
 
-- [web-existing-stack] Preserve the project's established frontend framework,
-  component library, state flow, routing model, styling system, formatter, and
-  build tool unless the user explicitly approves a change.
-- [web-version-boundary] Confirm installed dependency versions before applying
-  version-specific API, migration, or breaking-change guidance.
-- [web-no-parallel-system] Do not introduce a parallel component library,
-  state-management system, utility CSS framework, styling system, routing
-  system, or data-fetching layer for a localized requirement.
-- [web-existing-patterns] Inspect an existing comparable page, layout,
-  component, state flow, and style pattern before introducing a new pattern.
-- [web-single-owner] Every application shell, layout region, page region,
-  primary scroll container, overlay, state source, and feedback channel must
-  have one clear owner.
-- [web-locality] Keep page-specific behavior, state, styles, and components
-  within the nearest feature or page boundary. Promote them only after a real
-  cross-page responsibility is established.
+- [ui-documentation-exemption] Unless explicitly requested by the user, do not create or update document files such as designs, implementation plans, change records, or verification reports for designing, implementing, or adjusting UI layout, styling, or interface interactions. Do not make document completion or document approval a prerequisite for implementation. This exemption takes precedence over general requirements to create or update documents or record implementation phases.
+  - Interface interactions include expanding and collapsing, opening and closing dialogs, hover feedback, focus movement, scrolling, and switching views without changing business semantics. Local UI state changes, displaying existing data, or invoking existing functionality do not by themselves constitute changes to data processing or business functionality.
+  - Assess documentation needs only for parts that add or change data fetching, computation, transformation, persistence, API contracts, business rules, or business workflows. Such changes do not automatically require a new document; base that decision on the design decisions that need explanation and retention, and prefer updating existing relevant documents.
+  - When a task includes both UI and functional changes, document only the functional and data-processing changes that need explanation. Do not extend the documentation to layout, styling, or purely interface-level interaction details. Page count, changed-file count, visual complexity, or phased implementation must not independently trigger UI documentation requirements.
+  - Deliver change explanations and verification results directly in the conversation instead of generating separate document files.
+- [web-existing-stack] Preserve the project's established frontend framework, component library, state flow, routing model, styling system, formatter, and build tool unless the user explicitly approves a change.
+- [web-version-boundary] Confirm installed dependency versions before applying version-specific API, migration, or breaking-change guidance.
+- [web-no-parallel-system] Do not introduce a parallel component library, state-management system, utility CSS framework, styling system, routing system, or data-fetching layer for a localized requirement.
+- [web-existing-patterns] Inspect an existing comparable page, layout, component, state flow, and style pattern before introducing a new pattern.
+- [web-single-owner] Every application shell, layout region, page region, primary scroll container, overlay, state source, and feedback channel must have one clear owner.
+- [web-locality] Keep page-specific behavior, state, styles, and components within the nearest feature or page boundary. Promote them only after a real cross-page responsibility is established.
 
-## Application, Layout, And Page Boundaries
+## File Organization And Responsibility Boundaries
 
-Use an application / layout / page hierarchy:
+The following example illustrates file ownership. `*` denotes the file extension determined by the technology stack. Create directories and files only as needed, and preserve an existing equivalent structure or framework convention.
 
 ```text
-application
-+-- layout 1
-|   +-- page 1.1
-|   +-- page 1.2
-+-- layout 2
-    +-- page 2.1
-    +-- page 2.2
+src/
+├── layouts/
+│   └── {layout}/
+├── pages/
+│   └── {page-or-page-group}/
+│       ├── components/
+│       │   └── {component}/
+│       ├── modules/
+│       │   └── {module}/
+│       ├── Page.*
+│       ├── types.*
+│       ├── store.*
+│       ├── service.*
+│       └── useXxx.*
+├── shared/
+│   ├── components/
+│   │   └── {component}/
+│   ├── modules/
+│   │   └── {module}/
+│   └── libs/
+├── routes/
+└── stores/
 ```
 
-### Application Boundary
+Keep page- and module-owned state, types, and data-access files with their owners; the top-level `stores/` directory is only for application-level state. Place a component's implementation and private styles in its corresponding `{component}/` directory; simple components may also use a flat file structure.
 
-- [web-application-owner] The application boundary may own:
-  - application-wide runtime providers and services;
-  - global module mounting and initialization;
-  - top-level overlays;
-  - themes, languages, timers, and other cross-page capabilities;
-  - global messages, dialogs, bottom sheets, snackbars, and other cross-page
-    interactions.
-- The application boundary must not own:
-  - concrete page content;
-  - page forms, filters, or lists;
-  - page-level dialogs;
-  - page business interactions.
+- [web-project-structure] When adding or reorganizing files, preserve the project's and framework's established directory conventions and group related files by actual responsibility, not size or name. Create only the directories and layers currently needed; do not restructure the project to fit a template or extract files that only pass calls through. File ownership and dependencies must follow these responsibility boundaries:
+  - Application owns application startup, global configuration, and cross-page capabilities, not specific page content or business operations.
+  - Layout owns the application shell, such as shared navigation and headers, and the page outlet, not page business logic. Pages must not recreate shell regions already provided by their layout.
+  - A page or related page group owns its content composition, business operations, and local state. Keep private components, types, data access, and styles nearby rather than dispersing them into global directories.
+  - Components own presentation and interaction and may have local interaction state; modules own business rules, data, and workflows and may contain components; libraries provide technical capabilities independent of specific business domains.
+  - Move components or modules and their private dependencies into shared scope only when real cross-feature reuse exists. Consumers access shared code through public interfaces; shared code must not depend back on private page implementations.
 
-### Layout Boundary
+## Component Extraction
 
-- [web-layout-owner] A layout owns one stable application shell and may own:
-  - the child route or page-content outlet;
-  - navigation, drawers, headers, footers, and other cross-page shell regions;
-  - shared layout boundaries;
-  - shell visibility rules derived from route metadata.
-- A layout must not own:
-  - page business logic;
-  - page-level state or actions;
-  - route-name branches that implement page business behavior.
-- Shared navigation, drawer, header, footer, and other shell regions should be
-  reusable shell components composed by the layout.
-- One application may have multiple layouts. A page must not recreate shell
-  regions already owned by its application or layout unless the route
-  explicitly switches to a different layout.
+- [web-component-extraction] Extract components or modules to serve an independent responsibility, real reuse, isolation of complex logic, or independent composition. Do not split merely to reduce line count, move template code, or add a wrapper.
+  - Prefer keeping the existing structure when content is simple and has no reuse need, or when it is tightly coupled to its parent and splitting would require extensive dependency passing.
+  - Move the complete responsibility and its private dependencies together, adapting to consumers through inputs, outputs, and extension points. Do not share only appearance while duplicating business logic, or adapt through page-name or route branches. Keep components with a single consumer within their feature.
 
-### Page Boundary
+## API Access
 
-- [web-page-owner] A page owns:
-  - its feature content;
-  - page-level state and actions;
-  - the page content container, padding, and local layout;
-  - the page's remaining content area and primary page scrolling behavior.
-- A page must not duplicate navigation, drawers, headers, footers, global
-  overlays, or global scroll containers already owned above it.
-- Avoid page wrappers that merely reproduce application or layout
-  responsibilities.
+- [web-api-layer] Pages and UI components call APIs through their feature's data-access layer rather than issuing requests directly. That layer reuses the project's existing client for authentication, base URLs, common headers, and error translation. Business code uses relative paths only and must not hardcode service addresses or proxy targets. When absolute URLs, a separate client, or another transport are necessary, explain the reason, ownership, and impact before implementation.
 
-## Shared And Feature Components
+## Component Reuse And UI Libraries
 
-- [web-shared-component] Extract a shared component when a UI structure or
-  interaction pattern has multiple real consumers and a stable responsibility.
-- A shared component should:
-  - expose variation through documented inputs, outputs, and extension points;
-  - avoid route-name or page-name branches;
-  - remain weakly coupled to one business domain unless it is intentionally a
-    cross-feature business component.
-- When different consumers need different actions or local content, provide a
-  clear extension point instead of adding consumer-specific branches.
-- [web-feature-component] A feature component may own:
-  - one independent business capability;
-  - a reusable module within one feature;
-  - local interaction and feature-private UI composition.
-- Feature components may own local styles. Do not promote business-specific
-  styles into global tokens or global classes until they represent a stable
-  cross-page pattern.
-- Do not create a wrapper component for one call site unless it materially
-  reduces complexity or isolates a clear platform, browser, or third-party
-  boundary.
+- [web-reuse-order] Before implementing a required component or business capability, search and choose in this order: directly reusable project components/modules → extraction of existing project implementations with the same responsibility into reusable components/modules → available components in the project's UI library → custom implementation. Proceed to the next option only when the preceding option has no suitable solution with matching responsibility; do not skip the search and start writing a custom implementation.
+  - When using library components, use public APIs and extension points first. Add styles or behavior only when those capabilities are insufficient; do not replace existing interaction and accessibility capabilities with separate DOM or event mechanisms.
+  - Whether reused or custom, implementations must follow the project's existing information density, spacing, control sizing, interaction feedback, and responsive patterns.
 
-## Feature Module Boundaries
+## Data Sources, Data Flow, And Feedback
 
-- [web-feature-module] Organize product or business capabilities into feature
-  modules when the project uses a modular structure.
-- A feature module may contain:
-  - pages and route-level UI;
-  - domain types;
-  - feature state;
-  - repositories or data-access adapters;
-  - services;
-  - feature-level stateful utilities;
-  - feature-private components.
-- Keep a feature's pages, domain data flow, state, repositories, services,
-  stateful utilities, and private components inside the nearest feature
-  boundary.
-- A general UI-components area may contain page structure and small local
-  interactions, but must not own substantial domain data flow, persistence,
-  repositories, services, or business workflows.
-- A shared-components area is only for components reused by multiple features
-  and not bound to one business domain.
-- A shared-library area is only for cross-feature logic; do not place pages or
-  UI components there.
-- Types used by one file should remain close to that file. Types shared by
-  multiple files should move to the nearest feature-level or
-  responsibility-specific type module, not a catch-all global types file.
-- Follow the target project's existing directory names. Do not impose a
-  framework-specific directory structure from a generic example.
+- [web-state-source] Each piece of business data is managed by the nearest owner that serves its usage scope, and shared consumers read the same authoritative source. Do not mistake logic reuse for shared state or introduce global state by default merely to reuse code.
+  - Compute display and derived values from source data and update them automatically; do not create writable copies requiring manual synchronization. Editing copies are allowed for independent editing, cancellation, or deferred submission, but must have explicit initialization, submission, and discard behavior and must not directly modify shared saved data.
+  - Mutations update or invalidate the relevant sources through operations provided by their owner, allowing consumers to receive results through the established reactivity mechanism. Do not conceal broken data flow through direct DOM changes, duplicate copies, or forced page refreshes.
+- [web-feedback-owner] Forms or pages own their field and page feedback. System-wide feedback, global errors, and cross-page prompts use the application-level mechanism rather than separate implementations. Handle loading, empty, error, disabled, selected, success, and stale-data states explicitly rather than relying on incidental rendering branches.
 
-## API Access And Transport Boundaries
+## Dialog Action Order
 
-- [web-api-layer] Pages and UI components must not issue API requests directly.
-  Put API calls in the nearest feature or module service, repository,
-  data-access adapter, or API module.
-- [web-shared-api-client] Use the project's established shared API client for
-  authentication, base URL handling, common headers, error translation, and
-  other shared transport behavior.
-- [web-api-address] Feature code should use relative, path-only API routes.
-  Application base URLs, origins, and development proxy targets belong to
-  bootstrap or configuration boundaries and must not be hardcoded in feature
-  code.
-- [web-transport-exception] If a feature genuinely requires an absolute URL,
-  separate client, or different transport, document the reason, ownership, and
-  impact before implementation.
+- [web-dialog-action-order] When a dialog contains both applying and abandoning actions, place applying actions (such as save, delete, or apply filters) on the left and abandoning actions (such as cancel or close) on the right in LTR layouts. Do not add a cancel button to an interaction that has no abandoning action. Follow a different product convention when the user has confirmed it.
 
-## Components And UI Libraries
+## CSS And Style Ownership
 
-- [web-library-first] Use the project's existing UI library before native
-  controls or custom implementations for layout, forms, dialogs, menus, tables,
-  pagination, date inputs, uploads, feedback, and other common interactions.
-- [web-library-api-first] When using or modifying third-party UI library
-  components, first configure them through the library's built-in APIs and
-  properties. Custom CSS or JavaScript is allowed only when those capabilities
-  cannot satisfy the requirement.
-- Native elements remain appropriate for document semantics, browser API
-  boundaries, generated content, hidden inputs required by native workflows, or
-  behavior the UI library does not own.
-- [web-component-reuse] Reuse an existing component when its responsibility,
-  interaction semantics, and input/output contract match.
-- Extract or wrap a component only when real reuse, stable business semantics,
-  complex interaction, or a platform boundary justifies the abstraction.
-- Prefer library component APIs and built-in accessibility behavior over DOM
-  emulation or click handlers on generic containers.
-- [web-ui-consistency] New and modified UI must follow existing information
-  density, spacing, control sizing, interaction, feedback, and responsive
-  patterns.
+- [web-style-colocation] The same component owns its DOM and private styles. Organize, move, and scope styles with the component according to framework conventions; do not move them into unrelated files to shorten a file or promote them globally for a local need. Public styles contain only application foundations and stable shared visual rules. Reuse existing themes, tokens, component defaults, or shared components before adding public configuration; do not add it for one-page exceptions.
+- [web-style-replacement] When adjusting styles, change the original declarations and remove superseded rules. Do not counteract the old implementation by appending duplicate declarations, increasing specificity, or forcing overrides; explicit variants for themes, breakpoints, and interaction states remain valid. Apply spacing and sizing to the element that owns the layout rather than adding wrappers for individual style properties. Prefer existing semantic configuration and responsive capabilities; fixed values are allowed when required by product or platform constraints.
 
-## State, Data Synchronization, And Feedback
+## Removing Obsolete Implementations
 
-- [web-state-source] Treat the framework state, store, or query cache selected
-  by the project as the reactive UI source. Do not reload data merely to force
-  a rendering update after a mutation.
-- [web-state-minimal] Keep local UI state local. Introduce shared or global
-  state only when multiple owners genuinely need one source and lifetime.
-- Use the established server-state or data-access layer for remote data and
-  cache lifecycle. Do not copy server state into a second global state system
-  without a confirmed ownership reason.
-- The owner of a persistent mutation must update or invalidate its own
-  authoritative state and any directly related state after success.
-- Keep editing buffers separate from authoritative persisted state when the
-  workflow supports cancel, reset, dirty state, or deferred saving.
-- Feature-scoped singleton state is allowed only when its shared lifetime is
-  explicit, prevents real duplicate setup, and remains inside the feature
-  boundary.
-- [web-feedback-owner] Keep field validation and page-local feedback with the
-  owning form or page.
-- Route system-wide operation feedback, global errors, confirmation workflows,
-  toast or snackbar messages, and cross-page prompts through the established
-  application-level feedback owner.
-- Loading, empty, error, disabled, selected, success, and stale states must be
-  deliberate parts of the interaction rather than incidental rendering
-  branches.
-
-## Dialog And Popup Actions
-
-- [web-dialog-action-order] When a dialog, confirmation prompt, or popup form
-  contains both an action that applies a result and an action that abandons it,
-  place the applying action on the left and the abandoning action on the right.
-- Applying actions include confirm, save, add, delete, clear, reset, import,
-  keep, ignore, and apply-filter operations.
-- Abandoning actions include cancel, abort, close, and do-not-apply operations.
-- Selection lists, detail dialogs, keyboard dialogs, and similar interactions
-  without an explicit cancel action do not need an artificial cancel button.
-- Preserve established product conventions when a confirmed design document
-  defines a different action order.
-
-## Scrolling And Layout Boundaries
-
-- [web-scroll-owner] The layout defines fixed shell regions. The page content
-  region owns the remaining content area and page scrolling.
-- Every primary scroll boundary must be explicit.
-- Avoid multiple hierarchy levels simultaneously acting as the primary scroll
-  container.
-- Do not use global overflow rules, arbitrary heights, fixed positioning, or
-  nested scroll containers to conceal an application / layout / page ownership
-  problem.
-- Local scroll containers are allowed for clear local responsibilities such as
-  tables, editors, previews, logs, or virtualized collections. They must not
-  replace the page's primary scroll ownership accidentally.
-- Evaluate fixed sizes, fixed heights, and absolute positioning on small
-  screens, landscape orientation, touch devices, content growth, and system
-  safe areas.
-
-## CSS Layout
-
-- [web-layout-flex-before-grid] When the existing UI library's layout
-  components do not apply, prefer normal block flow and Flexbox for CSS layout.
-  Use Grid only when the layout has genuinely two-dimensional row-and-column
-  relationships that require coordinated control. Do not use Grid for simple
-  vertical stacking, single-axis arrangement, alignment, or spacing, and do not
-  mechanically make Grid the default layout across container hierarchy levels.
-
-## Style Boundaries
-
-- [web-style-scope] Global styles own unified foundational appearance.
-  Page-local and component-local styles must affect only their owning boundary.
-- Use the project's existing style system according to responsibility:
-  - cross-page visual semantics: theme or design token;
-  - stable cross-page component behavior: component defaults or shared
-    component;
-  - small local layout adjustment: existing utility classes;
-  - page-local or component-local behavior: locally scoped styles;
-  - broad global CSS or library internals override: bounded last resort with an
-    explained reason.
-- Do not duplicate properties already managed by the global theme, component
-  defaults, framework variables, or a shared component.
-- Promote only cross-page visual semantics or component conventions into
-  global tokens, global defaults, global classes, or shared components.
-- Do not create global tokens or defaults for one-page exceptions.
-- [web-style-colocation] Keep page-specific, component-specific, and
-  feature-specific styles next to their owning page, component, or feature
-  according to the project's existing structure.
-- Do not accumulate page or component selectors in a global stylesheet. When
-  touching legacy global selectors, move directly related local styles back to
-  their owner when that migration is within the current task scope.
-- Apply spacing and sizing to the element or component that owns the layout.
-  Avoid wrappers whose only responsibility is one margin, padding, flex, grid,
-  or width rule.
-- Avoid hardcoded colors and fixed sizes when existing semantic tokens or
-  responsive behavior can express the requirement. Fixed values remain valid
-  for real product, browser, editor, or platform constraints.
+- [web-remove-obsolete] When removing or replacing functionality or visual structure, also remove the DOM, styles, state, logic, and references made unused by the current change. Do not permanently hide old nodes instead of removing them; temporary hiding with a clear interaction purpose is not an obsolete implementation.
 
 ## Interaction, Forms, And Accessibility
 
-- [web-accessibility] Use semantic elements and the existing UI library's
-  interaction components so keyboard behavior, focus management, accessible
-  names, and disabled states remain intact.
-- Every form control needs an accessible label, validation behavior, disabled
-  behavior, submission state, and clear error feedback.
-- Icon-only controls require an accessible name.
-- Preserve keyboard navigation and input method editor composition behavior.
-- Dialogs, menus, tooltips, and other overlays must preserve focus restoration,
-  escape behavior, activator semantics, and keyboard operation.
-- Do not remove visible focus, hover, active, selected, loading, or disabled
-  feedback solely for visual styling.
-- Do not replace library accessibility behavior with click handlers on generic
-  containers.
+- [web-accessibility] When adding or adjusting interactions, use semantic elements and existing UI-library components. Do not replace control capabilities with click handlers on generic containers or remove interaction feedback for visual effects.
+  - Every form control and icon-only control must have an accessible name. Form controls must preserve validation, disabled and submission states, and error feedback.
+  - Preserve keyboard navigation, input method composition, and overlay trigger semantics, focus restoration, and Escape behavior. Focus, hover, active, selected, loading, and disabled states must have visible feedback.
 
 ## Bidirectional And RTL Layout
 
-- [web-logical-direction] Layout spacing must support bidirectional interfaces.
-  Prefer logical inline/block/start/end properties or utilities over physical
-  left/right properties unless a documented visual requirement is inherently
-  physical.
-- [web-rtl-source] Application direction, directional spacing, and alignment
-  decisions must come from the same centralized configuration or token source.
-  Do not redefine RTL detection or direction rules independently in pages and
-  components.
+- [web-logical-direction] Layouts must support bidirectional interfaces. Direction, directional spacing, and alignment use a shared configuration or token source; do not repeat RTL detection in pages and components. Prefer logical properties such as inline/block/start/end; use physical properties such as left/right only for visual requirements that explicitly depend on physical direction.
 
 ## Internationalization And User-Visible Content
 
-- [web-i18n] Use the project's established internationalization mechanism for
-  user-visible application text unless a design document explicitly defines
-  the content as external or user-provided.
-- Every locale message must compile under the project's configured message
-  syntax.
-- Reuse an existing message key only when its meaning and interpolation
-  contract match; identical text alone is insufficient.
-- [web-i18n-boundary] Page titles, navigation labels, button text, form labels,
-  placeholders, empty states, validation messages, and API error fallback text
-  are UI chrome and must use the established internationalization mechanism.
-- Backend-provided business data, including localized business content, does
-  not replace internationalized UI chrome. Runtime logs are exempt from the UI
-  internationalization requirement.
-- Framework-specific message escaping and compiler behavior belong in the
-  corresponding framework or internationalization reference.
-- Error feedback should preserve useful source detail in accordance with
-  [api-error-detail] in `coding-specification.md`.
+- [web-i18n] Application interface text, including titles, navigation, control labels, placeholders, status messages, validation messages, and error fallback text, must use the project's existing internationalization mechanism. External or user-provided business content and runtime logs are exempt; localized business data from the backend must not replace interface text internationalization.
+  - Messages must compile under the project's configured syntax. Reuse message keys only when their meanings and interpolation contracts match; do not merge them merely because the text is identical.
+  - Preserve useful source details in error feedback and sanitize sensitive information. Do not replace specific errors with generic translated messages.
 
 ## Formatting And Change Scope
 
-- [web-formatting] Use the project's configured formatter as the single
-  formatting authority for frontend source and configuration files.
-- Run the repository's frontend formatting check before delivery when one is
-  available.
-- Do not manually align source or change formatter configuration to normalize
-  one isolated preference.
-- Formatting changes must remain within frontend files explicitly in scope for
-  the task.
+- [web-formatting] The project formatter is the sole formatting authority for frontend source and configuration files. Do not manually align code or change configuration for personal preferences. Limit formatting to files involved in the task and run existing formatting checks before delivery.
 
-## Local Development Servers
+## Test Design And Use
 
-- [web-dev-server] An AI agent may start a local frontend server when runtime or
-  visual verification requires it.
-- Any server started by the agent must be stopped before delivery.
-- Do not leave background frontend processes behind.
-
-## Testing And Verification
-
-- Follow the verification ladder, test-addition rules, and reporting
-  requirements in `coding-specification.md`.
-- [web-persistent-test-scope] Permanent web test suites and formal test-case
-  directories may contain only data-logic and functional-behavior tests. Tests
-  of UI structure, presentation, styling, or interaction must not be retained
-  as permanent regression tests because those UI/UX details change too
-  frequently for old cases to remain valid assets.
-- [web-temporary-ui-tests] Tests and supporting assets created to verify UI
-  structure, presentation, styling, or interaction are one-time development
-  artifacts. Store them in a temporary directory outside formal test-case
-  directories, never include them in the corresponding feature commit, and
-  delete them automatically after the relevant verification is complete and
-  before creating that commit.
-- Prefer the smallest relevant combination of static reasoning, formatting,
-  type checking, linting, targeted tests, build verification, and browser or
-  visual checks.
-- Visual-only changes do not require automated tests by default, but responsive
-  layout, keyboard interaction, focus behavior, loading, empty, error, and
-  disabled states must still be checked when relevant.
+- [web-persistent-test-scope] Permanent tests verify only data flow and stable business behavior, not DOM, styles, display copy, screenshots, or UI/UX interaction presentation. Classify by assertion content; using a browser or mounting a component does not determine the category. Cover relevant success, failure, and boundary behavior according to change risk, reuse existing tests first, and do not substitute test count or coverage for value or introduce production abstractions for testing convenience.
+- [web-data-flow-tests] Data-flow tests must execute the actual implementation and verify the inputs, processing, state changes, and consumer results involved in the current change. When risk spans multiple stages, cover the necessary collaboration; a correct isolated function or an observed call does not prove the entire data flow is correct.
+  - Dependencies outside the test scope may be replaced. Do not mock the process being tested or rewrite the implementation in the test.
+  - Expected results come from requirements and business contracts and must distinguish correct from incorrect behavior. Do not copy the implementation, generate expectations with the code under test, or bind assertions to source syntax, variable names, internal steps, or component organization. When the business contract is unchanged, do not adjust expectations to match the current implementation merely because of refactoring or test failures.
+- [web-temporary-ui-tests] Verify UI/UX during the current development task through manual checks, browser checks, or temporary automation. Keep temporary tests and supporting assets outside formal test directories, exclude them from the feature commit, and remove them after verification. Not retaining UI/UX tests does not permit skipping acceptance checks.
+- [web-verification] Choose the smallest set of checks sufficient to verify the current change. Report the actual coverage and unverified areas of static checks, business tests, and UI/UX acceptance separately; a passing result in one category must not stand in for verification of another.
 
 ## Final Review
 
-Before delivering web frontend changes, verify:
-
-1. Application, layout, page, feature, and shared-component responsibilities
-   each have one clear owner.
-2. Feature module boundaries keep domain data flow and business workflows out
-   of general UI-component and shared-library areas.
-3. Pages and components use the established API layer and shared client without
-   hardcoded origins or feature-local transport duplication.
-4. Existing library components, shared components, state flows, and style
-   patterns were reused before adding custom implementations.
-5. Persistent mutations update or invalidate the authoritative reactive state.
-6. Local and system-wide feedback use the correct owners.
-7. Dialog action order follows this specification or a confirmed product
-   exception.
-8. Primary and local scroll boundaries are clear, responsive, and compatible
-   with the required text directions.
-9. Styles are colocated with their owners and placed at the narrowest correct
-   scope without avoidable global overrides, one-off tokens, or wrapper
-   elements.
-10. Forms, overlays, icon controls, focus, keyboard interaction, and input method
-   editor behavior remain accessible.
-11. UI chrome and backend-provided business content follow the correct
-    internationalization boundaries.
-12. Required formatting, type, test, build, and visual verifications were
-    completed and reported.
+Before delivery, check responsibility boundaries, behavior, and verification results against the rules applicable to the current change and correct deviations. Do not expand the change scope merely for self-review.
