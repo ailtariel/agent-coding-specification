@@ -1,108 +1,155 @@
-# 规则定位与优化原则
+# Personal agent rules and skills
 
-`agent-coding-specification` 的目的不是教 AI 如何写代码，而是对 AI 的编码行为模式作出明确约束，尤其是针对 AI 常见的错误行为。
+本仓库统一维护个人 AI 编码规范与 skills。规范约束容易反复出现的错误行为，skills 提供具体工作流和技术参考。Composition API、TypeScript、`<script setup>`、ESM、避免 Reactive Props Destructure 等属于有意保留的个人偏好；这些偏好不构成重写无关代码的理由。
 
-- 规则应该尽可能具有通用性，不仅仅针对某个具体的编程语言或框架或库。
-- 规则应该针对一种具体的行为模式，通常是 AI 容易犯错的模式进行明确约束，而非泛泛的编码建议。
-- 每条规则应该是清晰、完整、逻辑清晰的，能够说明确切的场景/条件和处理逻辑，不需要依赖别的规则补齐。
-- 规则与规则之间应该明确定义不同的场景，不能在相同场景做冲突定义。
+## 目录与维护边界
 
-# How to use
+| 路径 | 用途 |
+| --- | --- |
+| `AGENTS.md` | 仓库／工作区规则入口 |
+| `AI-coding-specification/README.md` | 生效规范路由；通用、功能设计、前端、分阶段任务及移植规则 |
+| `AI-coding-specification-cn/` | 对应中文维护稿，不安装到 agent 环境 |
+| `skills/` | 完整迁入的 skill-sets 内容，以及纳入维护的用户／系统 skills |
+| `skills/PROVENANCE.md` | 来源、迁移基线和定制边界 |
+| `skills/system-overrides.json` | 需要替代的 Codex 系统 skill 名称 |
+| `scripts/install.py` | Windows、WSL、macOS 共用的安装、检查及恢复工具 |
+| `scripts/check_codex.py` | 通过 Codex app-server 验证实际 skill 发现结果，不发起模型任务 |
 
-## Codex CLI
+原 `C:/workstation/dev/personal/skill-sets` 的全部 420 个工作树文件已迁入 `skills/`，复制时逐文件校验 SHA-256。原仓库及 Git 历史保留在 `C:/workstation/dev/personal/skill-sets.pre-migration-20260924/`。旧目录因被其他进程占用而无法整体重命名，内容已全部移入归档，只留下 README 指向新位置。后续修改和提交只在本仓库进行。源仓库中的新版 Vue、Vuetify、本地参考文档、许可证和上游来源均保留。
 
-推荐将本仓库作为规范的唯一事实来源，并通过 Codex 全局 `AGENTS.md` 引用其实际路径，不要向每个仓库复制规范文件。
+## 安装原理
 
-全局 `AGENTS.md` 应放在 Codex Home 中，即 `CODEX_HOME/AGENTS.md`；未设置 `CODEX_HOME` 时，默认位置为 `~/.codex/AGENTS.md`。`~/.agents/skills` 是用户级 skills 的目录，不是 Codex 全局 `AGENTS.md` 的位置。详见 [Codex 官方 AGENTS.md 文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)和 [Codex 官方 skills 文档](https://learn.chatgpt.com/docs/build-skills)。
+需要 **Python 3.11+**；安装程序仅使用标准库，不需要管理员、pip、Node 或网络。使用 Codex 的发现验证功能时才需要本机 Codex CLI。
 
-### 配置方法
+安装目标按当前用户解析：
 
-1. 确认本仓库的绝对路径，例如：
+| 内容 | 位置 |
+| --- | --- |
+| 生效规范快照 | `~/.agents/agent-coding-specification/specification/` |
+| 用户 skills | `~/.agents/skills/` 下的受管目录，保留 frontend 的嵌套结构 |
+| 全局规范入口 | `$CODEX_HOME/AGENTS.md`；已有 `AGENTS.override.md` 时修改后者 |
+| 默认 Codex Home | 未设置 `CODEX_HOME` 时为 `~/.codex/` |
+| 系统 skill 禁用配置 | Codex Home 内的 `config.toml` |
+| 安装记录和备份 | `~/.agents/agent-coding-specification/installed.json` 与 `backups/` |
 
-   ```text
-   C:/Workstation/Dev/codes/personal/agent-coding-specification/
-   ```
+Windows 的 `~` 是当前 Windows 用户目录；WSL 和 macOS 是当前 Unix 用户目录。WSL 与 Windows 各自安装，不共享 `.codex` 配置。安装的规范引用本机快照的绝对路径，因此 WSL 不依赖 Windows 盘持续挂载。
 
-2. 确定 Codex 全局 `AGENTS.md` 的位置，并检查它是否已经存在。PowerShell 示例：
+脚本只替换本仓库管理的 skill 目录，保留无关 skills。全局 AGENTS 使用带 `BEGIN/END agent-coding-specification` 标记的区块合并，保留区块外个人内容；能够识别本仓库旧版完整模板时会迁移旧入口并保留 User Preferences。无法识别的旧内容不会自动删除，应检查是否还引用过期规范。
 
-   ```powershell
-   $specRepo = (Resolve-Path .).Path
-   $codexRoot = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
-   $globalAgents = Join-Path $codexRoot 'AGENTS.md'
+所有待替换内容先备份，再写入并校验；失败时恢复本次已触及的目标。重复安装且源未变化时不产生新备份。不直接修改安装副本；修改本仓库后重新执行安装即可同步。
 
-   New-Item -ItemType Directory -Path $codexRoot -Force | Out-Null
-   Get-Item -Force -ErrorAction SilentlyContinue $globalAgents
-   ```
+## Windows
 
-3. 如果全局 `AGENTS.md` 不存在，复制仓库中的 `AGENTS.global.template.md`：
+在 PowerShell 中进入本仓库：
 
-   ```powershell
-   Copy-Item -LiteralPath (Join-Path $specRepo 'AGENTS.global.template.md') -Destination $globalAgents
-   ```
+```powershell
+Set-Location 'C:\workstation\dev\personal\agent-coding-specification'
+python --version
+python scripts/install.py --dry-run
+python scripts/install.py
+python scripts/install.py --check
+python scripts/check_codex.py
+```
 
-   如果文件已经存在，不要覆盖。保留其中已有的全局偏好，并手动合并 `AGENTS.global.template.md` 的内容。
+如果 Python 命令是 `py -3`，将上述 `python` 替换为 `py -3`。路径包含空格时加引号。预览和 `--check` 不写入安装目标。
 
-4. 打开全局 `AGENTS.md`，将模板中的路径占位符改为本仓库 `AI-coding-specification/` 目录的实际绝对路径，并补充需要保留的个人偏好：
+验证脚本会打印所用 Codex 的版本和路径。若 PATH 指向旧 CLI，应通过 `--codex` 指定实际使用的编辑器 Codex 可执行文件，例如：
 
-   ```powershell
-   notepad $globalAgents
-   ```
+```powershell
+python scripts/check_codex.py --codex 'C:\Users\<user>\.vscode\extensions\openai.chatgpt-<version>-win32-x64\bin\windows-x86_64\codex.exe'
+```
 
-5. 检查 Codex Home 中是否存在 `AGENTS.override.md`。如果存在，Codex 会优先读取它而忽略同级 `AGENTS.md`，因此需要将模板规则合并到 `AGENTS.override.md`，或者在确认其内容不再需要后移走该文件。
+`<user>` 和 `<version>` 必须替换为本机真实路径。本次机器的 npm CLI 0.87 不识别 `~/.agents/skills`，实际验证使用 VS Code 内置 Codex 0.155.0-alpha.16.3；如果要在旧 CLI 中使用这些 skills，需将 CLI 更新到支持该目录的版本。
 
-6. 重新启动 Codex 会话，然后验证实际加载结果：
+## WSL
 
-   ```powershell
-   codex --ask-for-approval never "列出当前加载的指令来源，并总结编码规范的优先级。"
-   ```
+先从 Windows 查看发行版，再以日常开发用户进入目标发行版，不使用 root：
 
-预期结果应包含 Codex Home 下的全局 `AGENTS.md`，并说明最终适用的 `AI-coding-specification/` 规则集合高于通用 skills、框架 skills 和 agent defaults。
+```powershell
+wsl --list --verbose
+wsl -d Ubuntu
+```
 
-### 工作区补充规范
+在 WSL 内可以从 Windows 的同一工作树安装：
 
-全局入口会先读取本仓库提供的默认规范，然后检查当前工作区以及每个受影响仓库中的 `AI-coding-specification/`：
+```bash
+cd /mnt/c/workstation/dev/personal/agent-coding-specification
+python3 --version
+python3 scripts/install.py --dry-run
+python3 scripts/install.py
+python3 scripts/install.py --check
+python3 scripts/check_codex.py
+```
 
-- 工作区不存在该目录时，仅使用全局默认规范。
-- 工作区存在该目录时，先读取其中的 `README.md`（如果存在）并遵循其任务路由，再读取额外的任务相关规则文件。
-- 工作区规则文件与全局规则文件同名时，以工作区文件为准，不再应用全局同名文件。
-- 文件名不同时，同时应用全局规则和工作区规则；如果不同文件之间发生冲突，实施前应停止并请用户确认。
-- 多仓库任务需要为每个受影响仓库分别合并规则。
+也可以使用 WSL 内独立 clone 的本仓库，命令不变。每个需要使用的发行版／用户分别运行安装；Docker Desktop 等内部发行版不属于开发用户安装目标。`CODEX_HOME` 若有定制，使用该用户真实的配置路径。
 
-仓库或子目录中的 `AGENTS.md` 会在全局文件之后加载，因此除上述工作区同名规范覆盖机制外，其它局部规则应只补充或加强最终适用的规范集合，不应削弱它。
+从 PowerShell 直接执行 WSL 的验证命令时，应使用 `wsl -d Ubuntu -- bash -lc 'python3 /mnt/c/workstation/dev/personal/agent-coding-specification/scripts/check_codex.py'`，以加载 Linux 用户 PATH；也可通过 `--codex /home/<user>/.npm-global/bin/codex` 指定 Linux CLI。裸 `wsl -- command` 在当前机器会先找到 Windows npm 的旧版本。本次 Linux CLI 0.139.0 已通过发现验证。
 
-后续只需维护本仓库的 `AI-coding-specification/`。只有在本仓库移动到其他位置时，才需要再次修改全局 `AGENTS.md` 中的绝对路径。
+## macOS
 
-## 其它兼容 AGENTS.md 的 agents
+将本仓库 clone 到个人开发目录，确保 Python 3.11+ 已安装，然后：
 
-把 `AGENTS.md` 和 `AI-coding-specification` 复制到项目根目录。
+```bash
+cd /path/to/agent-coding-specification
+python3 scripts/install.py --dry-run
+python3 scripts/install.py
+python3 scripts/install.py --check
+python3 scripts/check_codex.py
+```
 
-如果已有 `AGENTS.md`，请自行合并内容。
+不使用 `sudo`。脚本不依赖 Windows junction、GNU 专有命令或 WSL。当前验证环境为 Windows 和 Ubuntu；未进行真实 macOS 运行验证。
 
-`AI-coding-specification-cn/` 是本仓库维护中文草稿用的目录，不属于安装内容。
+## 验证与系统 skill 替代
 
-## Claude Code
+安装后重新启动 Codex，使 `config.toml` 变更生效。`--check` 验证规范快照、skills、入口区块、禁用配置和安装记录与当前源一致；`check_codex.py` 通过只读 `skills/list` 检查每个受管 skill 只出现一个启用版本，且路径为安装副本。也可在新会话查看 `/skills`，并要求 agent 列出加载的规则来源。
 
-将 `AGENTS.md` 的内容合并到项目根目录的 `CLAUDE.md`，并保留其中对 `AI-coding-specification/coding-specification.md` 的读取要求。
+Codex 官方文档说明，同名 skills 不保证合并或覆盖，因此本仓库采用“安装用户副本＋禁用原路径”。目前替代 `openai-docs`：
 
-如果项目同时使用 Codex 和 Claude Code，可以同时维护 `AGENTS.md` 和 `CLAUDE.md`，两者都引用同一份 `AI-coding-specification/coding-specification.md`，避免规则内容分叉。
+```toml
+[[skills.config]]
+path = "/absolute/codex-home/skills/.system/openai-docs/SKILL.md"
+enabled = false
+```
 
-## Other AI coding tools
+实际路径由安装程序生成。以后替代其他系统 skill 时，先将其完整目录和资源提取至 `skills/<name>/`，修订后把名称加入 `skills/system-overrides.json`，再安装和验证。不要只复制一个 `SKILL.md`，也不要直接改 `.system` 缓存。Codex 升级后重新运行检查；如果内置路径或发现协议变化，需要相应更新安装配置。
 
-如果使用 Cursor、Cline、Roo Code、Continue、Aider、GitHub Copilot 等不一定读取 `AGENTS.md` 的工具，请把 `AGENTS.md` 中的规则入口迁移或合并到该工具实际读取的项目规则文件中。
+官方说明：[AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[skills 目录及禁用配置](https://learn.chatgpt.com/docs/build-skills)、[app-server skills/list](https://learn.chatgpt.com/docs/app-server)。
 
-推荐做法是：不同工具维护各自的入口文件，但都引用同一份 `AI-coding-specification/coding-specification.md`，不要把完整规范复制到多个工具配置里，避免规则内容分叉。
+## 更新、恢复与定制路径
 
-## 扩展
+日常更新：拉取／修改本仓库，再分别在 Windows、WSL、macOS 运行 `scripts/install.py` 和 `--check`。不需要复制规则到每个项目。
 
-如果你要扩展更多规则，例如：
+恢复时使用安装输出的备份绝对路径：
 
-- 如何维护部署配置文件
-- 如何同步管理git issues和PR
+```bash
+python3 scripts/install.py --restore /home/me/.agents/agent-coding-specification/backups/<timestamp>
+```
 
-你可以在 `AI-coding-specification` 增加相关规则文件，并在 `AGENTS.md` 文档中的 “## Required Reading Order” 一节显式索引它，并说明适用场景。
+Windows 对应使用 `python` 和带引号的 Windows 路径。恢复仅处理那次安装替换的目标；如果安装后目标又被修改，脚本拒绝覆盖，需要先保留和处理这些修改。多次安装应按时间倒序恢复，避免覆盖后续版本。
 
-## Notes
+可用 `--codex-home /custom/codex` 指定 Codex 配置目录。`--home /isolated/user` 可测试另一个用户目录；若同时设置了 `CODEX_HOME`，它仍优先，测试时建议同时指定 `--codex-home`。路径被链接到外部位置或与源仓库重叠时，安装器会报告而不是覆盖。
 
-之所以不把它做成skill，是因为仓库级规则通常能拥有比skill更高的优先级，避免这些规则被skill覆盖。
+上游 skill 更新仅用于比较：
 
-部分规则具有个人/项目倾向性，可能并不适合你的项目，使用前请认真先自行审阅。
+```bash
+python3 skills/update_skills.py --list
+python3 skills/update_skills.py --skill vue,pinia
+```
+
+检查 `skills/tmp/update-skills/staged/` 后手工合并必要变化；`--apply` 已禁用，防止上游更新抹掉个人偏好和修订后的流程。Vuetify 本地参考资料按自身来源维护。
+
+维护安装器时运行：
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+## 项目补充规范与其他 agents
+
+全局规则先按任务路由加载本仓库规范，再合并当前工作区和受影响仓库的 `AI-coding-specification/`。同名文件由工作区版本替代，不同名相关文件补充。当前用户明确指令优先；重要歧义只暂停依赖部分，不把已授权实施重新转为审批。
+
+其他支持 AGENTS.md 的工具，可把根 `AGENTS.md` 与生效规范目录安装到项目根；已有入口应合并。Claude Code 使用 `CLAUDE.md` 引用相同规范路由；Cursor 等工具使用各自实际读取的入口。Skills 的发现目录随工具不同，需遵循其配置。上述自动安装器和系统 skill 替代机制针对 Codex。
+
+## 规则维护原则
+
+规则应描述清晰的场景、边界和预期结果，避免重复约束、固定仪式和无关流程。共用规范保持跨模型可用；模型特有偏好放在个人配置。按风险选择最小充分验证，保留明确的完成条件和既有授权。中文 Markdown 正文不按固定列宽硬折行。

@@ -11,9 +11,9 @@ This directory contains default specifications for AI-assisted functional design
 
 ## Task Types and Specification Routing
 
-- **Functional design tasks:** Analyze requirements, complete or compare approaches, or create or modify functional design documents. Read [`functional-design.md`] if it exists.(functional-design.md).
-- **Implementation tasks:** Modify code, configuration, databases, deployment assets, or other implementation artifacts. Read [`coding-specification.md`](coding-specification.md) if it exists, and any specialized implementation specifications in this directory that apply to the task.
-- **Mixed tasks:** Complete the design under the functional design specification and obtain user confirmation before proceeding under the implementation specification, unless the user explicitly requests otherwise.
+- **Functional design tasks:** Analyze requirements, complete or compare approaches, or create or modify functional design documents. Read [`functional-design.md`](functional-design.md).
+- **Implementation tasks:** Modify code, configuration, databases, deployment assets, or other implementation artifacts. Read [`coding-specification.md`](coding-specification.md) once and apply relevant clauses. For web work read [`web-frontend.md`](web-frontend.md); for complex phased work read [`large-tasks.md`](large-tasks.md); for porting an existing feature read [`feature-porting.md`](feature-porting.md). Do not load unrelated workflows.
+- **Mixed tasks:** Follow the design and implementation rules for their respective work. Existing implementation authorization persists through design refinement; pause only when the user requested a design approval gate or a material decision remains unauthorized.
 - If the task type changes during execution, read the specifications applicable to the new stage before continuing.
 
-Autonomous decisions permitted during the design stage constitute design outcomes only. They do not automatically authorize corresponding code or other implementation changes.
+Review-only and design-only requests do not authorize implementation. An end-to-end implementation request does authorize necessary in-scope design refinement, edits, verification, and related fixes. Reuse unchanged rules and documents already read in this conversation. Review tasks read the rules governing the reviewed artifacts; documentation-only edits use the relevant document rather than every implementation workflow.

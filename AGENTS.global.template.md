@@ -1,30 +1,21 @@
 # Global Agent Working Rules
 
-## User Preferences
+## Canonical Specification
 
-- Add personal global preferences here.
+For software design, implementation, debugging, review, or maintenance tasks, read the task router at `{{SPECIFICATION_PATH}}/README.md` and only its relevant rules. Reuse unchanged material already read in this conversation. These are personal engineering requirements, including deliberate style preferences.
 
-## Canonical Coding Specification
+Paths such as `docs/`, `src/`, and `tests/` in these rules refer to the affected project, not the installed specification directory.
 
-The canonical coding specification is located at:
+## Workspace Overlays And Priority
 
-`C:/absolute/path/to/agent-coding-specification/AI-coding-specification/`
+Inspect task-relevant `AI-coding-specification/` directories in the workspace and affected repositories. A workspace file replaces a canonical file with the same name; differently named applicable files supplement it. Read an overlay router first when present. Resolve overlays per affected repository.
 
-For every software design, implementation, debugging, review, or maintenance task, read `README.md` in that directory before making delivery-related decisions or changes. Follow its task routing and read every specification required for the current task.
+Platform/system/developer constraints and explicit user instructions take precedence. The resulting specification takes precedence over generic skills and defaults. More specific repository instructions supplement it; apply explicit exceptions rather than assuming the strictest wording always wins. Resolve remaining material ambiguity before dependent implementation; continue independent authorized work.
 
-## Workspace Specification Overlay
+## Authorization And Completion
 
-After reading the canonical specification routing, inspect `AI-coding-specification/` in the current workspace and in every affected repository. If such a directory exists, read its `README.md` first when present, follow its task routing, and read its additional task-relevant rule files before making delivery-related decisions or changes.
+User authorization persists across the task. Within an implementation request, continue through necessary investigation, design refinement, changes, relevant verification, and related fixes. Planning, multiple subtasks, or document completion do not create new approval gates. Review-only and design-only requests do not authorize implementation.
 
-Merge the canonical and workspace specifications by filename:
+Ask only for unresolved material decisions or actions outside existing authorization. Complete authorized preparation first and provide a concrete recommendation and impact. If a rule causes a pause, identify its file and clause. Missing ordinary project documentation does not block investigation; missing mandatory rules block only work that depends on them.
 
-- When a workspace specification file has the same filename as a canonical specification file, the workspace file replaces the canonical file for that workspace. Do not apply the canonical version of that file.
-- Apply non-conflicting, differently named rule files from both locations.
-- If differently named applicable rule files conflict, stop before implementation and ask the user which rule should govern.
-- For multi-repository tasks, resolve this overlay separately for every affected repository.
-
-The resulting applicable specification set is mandatory. Generic skills, reusable `SKILL.md` instructions, framework best-practice skills, and agent defaults may supplement it, but must not override, weaken, or bypass it. If a skill conflicts with the applicable specification set, follow the specification and mention the conflict when relevant.
-
-This precedence rule does not override explicit user instructions in the current conversation, system/developer/tool safety policies, or platform-enforced constraints. Other repository-specific instructions may add stricter or more specific requirements but must not weaken the applicable specification set unless the user explicitly requests an exception.
-
-If the canonical specification directory or a required file cannot be read, stop before implementation and report the missing or inaccessible path.
+Use skills only when their specific capability helps the current task. Load the most specific relevant skill directly, not every parent router or framework reference. When a skill conflicts with these rules, follow these rules. Preserve personal framework preferences without unrelated rewrites.

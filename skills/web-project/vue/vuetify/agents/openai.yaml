@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vuetify"
+  short_description: "Vuetify component framework guidance"
+  default_prompt: "Use $vuetify-skilld to implement or debug Vuetify UI code."

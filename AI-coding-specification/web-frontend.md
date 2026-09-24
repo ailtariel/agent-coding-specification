@@ -10,7 +10,7 @@ It extends [`coding-specification.md`](coding-specification.md). Project design 
 ## Rule Usage
 
 - This document is mandatory for all web frontend tasks, regardless of the framework, rendering mode, component library, or state-management library.
-- Apply all relevant rule blocks together. When this document conflicts with a project design decision confirmed by the user, stop and confirm the intended exception before implementation.
+- Apply all relevant rule blocks together. Resolve conflicts using instruction priority. A current explicit user exception is already authorized; ask only when a material conflict remains unresolved, and pause only dependent implementation.
 - Rule tags are intended for plans, reviews, delivery notes, and self-checks. Do not expand implementation scope merely to satisfy a tag.
 - Framework-specific APIs, file types, macros, hooks, composables, components, and formatting exceptions belong in the corresponding framework or UI-library skill, not in this document.
 

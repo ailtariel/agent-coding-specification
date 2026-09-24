@@ -1,4 +1,4 @@
-Author: ailtariel@gmail.com Updated: 2026-07-26
+Author: ailtariel@gmail.com Updated: 2026-09-24
 
 # 仓库级 AI 功能设计规范
 
@@ -11,7 +11,7 @@ Author: ailtariel@gmail.com Updated: 2026-07-26
 - 本文档是功能设计任务必须遵守的仓库级规范，不是按需使用的 Skill。
 - 当任务同时适用多个规则块时，必须同时遵守全部规则。
 - 规则标签用于设计审查、自检和交付说明。不得为了满足标签而扩大设计范围。
-- 实施任务仍以 [`coding-specification.md`](coding-specification.md) 为准；设计阶段的自主性不得被视为实施授权。
+- 实施任务仍以 [`coding-specification.md`](coding-specification.cn.md) 为准；仅设计请求不授权实施；已有完整实施授权在设计细化期间持续有效。
 
 ## 设计自主性与架构边界
 
@@ -20,7 +20,7 @@ Author: ailtariel@gmail.com Updated: 2026-07-26
 - [autonomous-detail-design] 在不改变架构、产品目标、公共契约和重要用户行为的前提下，AI 可以自主补全功能流程、领域边界、状态、异常行为、数据流和模块协作等设计细节。
 - [decision-rationale] 自主作出的重要设计判断应说明理由。局部、低影响且容易调整的细节不需要逐项请求用户确认。
 - [minimal-design] 设计必须遵循最小化原则，不增加不能直接服务于当前目标的功能、抽象或复杂度。
-- [design-conflict] 新设计与当前有效架构、已确认设计或用户要求冲突时，必须明确指出冲突并交由用户决定，不得静默选择其中一方。
+- [design-conflict] 先按明确的指令优先级解决冲突。当前用户明确修改旧决策时，按新要求继续并更新相关文档；仍不明确且影响设计的冲突才请求决定，独立工作继续。
 - [implementation-evidence] 现有实现是评估影响和迁移成本的重要依据，但不应自动成为降低设计目标的理由。不得为了复用或兼容内部旧实现而默认削减能力。
 - [confirmed-compatibility] 已确认的公共契约、存量数据和用户可见行为属于设计约束。完整目标与这些约束无法同时满足时，必须给出影响和可选方案，由用户决定。
 - [no-degraded-default] 完整设计会造成重大实现变更时，必须说明范围和代价并交由用户决定，但不得只提供能力降级方案。
@@ -40,7 +40,7 @@ Author: ailtariel@gmail.com Updated: 2026-07-26
 ## 依赖与用户决策
 
 - [dependency-proposal] 新依赖库或新独立服务只有在能带来明确收益时才可以作为设计方案提出。必须说明收益、成本、风险和替代方案，并交由用户决定是否采用。
-- [user-decision-gate] 出现以下情况时，AI 可以提出建议和首选方案，但不能自行确定最终方向：
+- [user-decision-gate] 以下重要决策尚未由用户确定或授权时，提供分析、首选方案并请求决定：
   - 改变系统架构、模块职责、数据权威或信任边界；
   - 与当前有效设计或用户要求发生实质冲突；
   - 改变产品目标、功能范围或重要用户行为；
@@ -66,5 +66,5 @@ Author: ailtariel@gmail.com Updated: 2026-07-26
   - 功能模块和业务组件；不罗列没有独立功能职责的纯 UI primitive。
   - Data service 及其职责、权威边界、input、output 和重要 failure behavior。
   - 每条业务数据流使用的 API 或 transport，以及它们如何支撑页面 workflow。
-- [design-review] 提交设计供用户审查前，以及每轮用户反馈后，必须在当前需求范围内检查重要遗漏、含糊规则、自身冲突、与当前有效设计的冲突及与现有实现的冲突或影响。影响设计正确性或实施决策的冲突必须补全或交由用户决定。
+- [design-review] 提交设计供用户审查前，以及每轮用户反馈后，必须在当前需求范围内检查重要遗漏、含糊规则、自身冲突、与当前有效设计的冲突及与现有实现的冲突或影响。影响设计正确性或实施决策的冲突先按指令优先级解决，仍有歧义时才交由用户决定。
 - [design-implementation-separation] 设计文档不展开文件级修改步骤、函数级实现、实施阶段或具体测试步骤；这些内容属于实施文档。

@@ -1,5 +1,5 @@
 Author: ailtariel@gmail.com
-Updated: 2026-07-26
+Updated: 2026-09-24
 
 # Repository-Level AI Coding Specification
 
@@ -9,20 +9,20 @@ Unless explicitly requested by the user, these rules take precedence over any co
 
 ## Rule Usage
 
-- This document is a mandatory repository-wide specification, not an on-demand skill. All code-related tasks should follow the entire document by default.
+- This document is a mandatory repository-wide specification, not an on-demand skill. Read this core once for a coding task; apply relevant clauses and load specialized workflows only when routed. Reuse unchanged material already read in this conversation.
 - When multiple rule blocks apply to a task, all of them must be followed simultaneously. For non-security implementation decisions, weigh trade-offs according to [priority]. Security risks must follow [security-confirmation].
 - Rule tags are intended for delivery notes, reviews, and self-check references. Do not expand implementation scope merely to satisfy a tag.
 
 ## General Rules
 
+- [authorization-and-completion] Authorization persists across the conversation. An implementation or fix request includes necessary in-scope investigation, design refinement, edits, relevant verification, and fixing failures caused by those edits; a review-only or design-only request does not authorize implementation. Pause only dependent work for unresolved, unauthorized material product, architecture, dependency, public-contract, or irreversible-action decisions; continue independent authorized work. Complete authorized preparation before asking, and provide a concrete proposal, impact, and recommendation. If a rule causes a pause, identify its file and clause. Complete the user goal, necessary checks, and related fixes, and disclose unverified areas; do not stop at a first implementation.
+
 - [priority] Explicit user requirements > correctness > maintainability > minimal changes > security > style and simplicity
 - [minimal-context]
   - Prioritize reading the minimum set of files directly related to the current task.
   - Do not scan the entire repository without purpose, read large amounts of unrelated files, or repeatedly read files already confirmed to be irrelevant.
-- [plan-first] Before writing code, briefly state the intended change and affected files. Do not create a formal implementation plan by default. A plan and user confirmation are required only when the task has unresolved design trade-offs, changes dependencies or public contracts, has broad cross-module behavioral impact, or requires phased implementation or multiple relatively independent subtasks. A behavior change, multiple affected files, or the expected number of changed lines does not trigger this requirement by itself. When design or implementation documents are required, follow the "Design and Implementation Documents" section.
-- [security-confirmation] Security risks must be explicitly identified and communicated, but implementation decisions involving functionality, architecture, deployment, or security strategy must be confirmed by the user.
-  - AI should proactively point out security risks and possible mitigation directions. However, repository-level AI coding usually lacks complete context about architecture, deployment, compliance, and business risk. Before receiving user confirmation, do not independently implement functionality-, architecture-, deployment-, or policy-level security measures.
-  - Only localized, low-risk security hardening with clear behavior and no public contract changes may be applied by default.
+- [plan-first] Before coding, briefly state the intended change and impact. Use a plan when complex dependencies, important trade-offs, or implementation phases need to be retained; do not create a formal plan for simple changes. Planning does not itself require approval. File count, line count, or multiple independent subtasks do not trigger confirmation. Apply [authorization-and-completion] to unresolved decisions.
+- [security-confirmation] Communicate evidenced security risks directly relevant to the task. Proceed with already-authorized security fixes; seek a decision for unapproved changes to functionality, architecture, deployment, or security policy. Localized, low-risk hardening with clear behavior and no public contract change may proceed. Do not introduce approval gates or expand scope because of hypothetical risks.
 - [behavior-preservation]
   Unless the task explicitly requires behavior changes, preserve existing runtime behavior, exception behavior, execution timing, return structures, and side effects by default.
   If the current implementation already works correctly and the task does not require changing that behavior, do not rewrite it merely because another implementation appears "cleaner", "more modern", or "more generic".
@@ -33,9 +33,8 @@ Unless explicitly requested by the user, these rules take precedence over any co
   - Do not refactor existing code merely because it "might be useful in the future", "might need future extensibility", or could "improve the structure while we're here".
   - Do not add TODO/FIXME comments without a clear plan or requirement source.
 - [no-extra-abstraction] Do not introduce unnecessary abstraction layers (no unnecessary classes, interfaces, wrappers, or helpers).
-- [abstraction-exception] This rule applies only to backend code. Abstraction/extraction is allowed only if all of the following are true simultaneously: behavior remains unchanged, readability does not decrease, and total lines of code are significantly reduced. If line count increases instead of decreases, avoid abstraction in most cases.
-  - Reuse existing utilities first. Only extract new reusable components when this rule is satisfied.
-- [validation-boundary] Avoid excessive defensive programming: validate external input, trust internal data flow. External input should only be validated at the entry point; internal flows should follow established contracts without repeated fallback handling. External input should only be validated once per execution chain.
+- [abstraction-exception] For backend code, extract only for a clear responsibility boundary, real reuse, or necessary isolation of complex logic, preserving confirmed behavior and improving overall comprehension and maintenance cost. Reuse existing capabilities first; avoid layers that merely forward calls. Reduced line count is a possible benefit, not a prerequisite.
+- [validation-boundary] Validate at external-input and actual trust boundaries. Do not repeat identical checks or fallback handling within the same trusted flow. Validate again at a new trust boundary or when an operation requires a different business invariant. Code-layer count does not determine validation placement.
 - [wrapper-pass-through] When wrapping functions, objects, or service calls, pass through their return values and errors unchanged by default, preserving how errors propagate. Do not filter fields, restructure or rewrap results, replace errors, or modify the original returned data without an explicit requirement or design basis. Any transformation, such as adapting to a defined contract or sanitizing sensitive information, must be limited to the changes required for that purpose, preserving all other information and error semantics.
 - [no-silent-failure] Silent failures are prohibited. Unless the user explicitly agrees to degradation behavior, errors should be exposed clearly through logs or returned responses.
 - [api-error-detail] When returning API error responses, preserve meaningful error codes or error text such as `error`, `text`, or `message` from the source whenever available. If the content contains sensitive information, sanitize it before returning.
@@ -44,7 +43,7 @@ Unless explicitly requested by the user, these rules take precedence over any co
   - Error messages need to be unified/formatted
   - Resource cleanup or transactional consistency is required (e.g. rollback, releasing connections)
 - [public-contract] Do not modify public APIs, database schemas, configuration formats, or environment variable names unless explicitly requested by the user.
-- [dependency-gate] Do not introduce new dependencies. If a new dependency is truly necessary, explain the reason and wait for confirmation first.
+- [dependency-gate] Do not introduce unapproved new dependencies. If a new dependency is truly necessary and not already authorized, explain the reason and wait for confirmation first.
 
 ## OS and Tools
 
@@ -57,14 +56,7 @@ Unless explicitly requested by the user, these rules take precedence over any co
 
 ## Large Tasks
 
-- [large-task-threshold] Treat a task as a large task by default if any of the following is true: it is expected to require phased implementation, it involves multiple relatively independent subtasks, or the user explicitly requests the large-task workflow. If triggered, explicitly confirm with the user whether to use the large-task multi-phase + automatic iterative development workflow.
-- [default-phase-flow] After the user confirms the large-task workflow, if the user does not provide different instructions, automatically proceed through the phases in the implementation document. Each phase does not require another confirmation after completion. If important design conflicts, omissions, or implementation blockers are discovered during implementation, pause further code changes and wait for user decision.
-- [phase-workflow] Each implementation phase should include at least the following steps, in order:
-  1. Code changes
-  2. Review, including whether the functionality works, whether it follows the design and implementation documents, whether it introduces changes outside the requirement, and whether it violates relevant rules in this specification. If deviations are found, fix them before moving to the next phase.
-  3. The smallest necessary verification
-  4. Briefly record the implementation status in the implementation document
-  5. Git commit. Each phase should have only one commit; do not split meaningless small commits merely to increase the commit count.
+When this workflow applies, read [large-tasks](large-tasks.md).
 
 ## Design and Implementation Documents
 
@@ -72,35 +64,27 @@ Unless explicitly requested by the user, these rules take precedence over any co
 - [design-execution-separation] In principle, design documents and implementation documents should be written separately.
 - [doc-lightweight-exception] For smaller tasks with simple design choices that are expected to be completed in one implementation pass, design and implementation documents may be merged even if [large-task-threshold] is met. The merged document should still distinguish design decisions from the implementation plan. If the task expands or requires multi-phase implementation, restore separate documents.
 - [task-doc-location] Save design and implementation documents in an existing same-type documentation path in the target workspace or affected repository first. If none exists, use `docs/<module-or-task>/` under the applicable target repository root. Design document filenames should start with `[design]`; implementation document filenames should start with `YYYY-MM-DD`.
-- [design-confirmation-gate] After completing the design document under [`functional-design.md`](functional-design.md), stop and wait for user confirmation. Do not make code changes before confirmation unless the user explicitly instructs otherwise.
-- [design-freeze] After the user confirms the design document, it becomes the design baseline for the current task by default. During implementation, do not change the design merely because a "cleaner", "more generic", or "more extensible" implementation is found. Reopen design discussion only when a design error, implementation impossibility, major risk, new user requirement, or explicit user request to adjust the design is found. Do not continue implementing away from the confirmed design before receiving renewed user confirmation.
+- [design-confirmation-gate] Wait after design only when the user requested a design review before implementation or an important decision remains unauthorized. When end-to-end implementation is authorized and key decisions are settled, design refinement and document completion do not create another approval gate.
+- [design-freeze] After the user confirms the design document, it becomes the design baseline for the current task by default. During implementation, do not change the design merely because a "cleaner", "more generic", or "more extensible" implementation is found. Reopen design discussion only when a design error, implementation impossibility, major risk, new user requirement, or explicit user request to adjust the design is found. An explicit new user direction settles the corresponding change; request renewed confirmation only for material departures not already authorized. Continue independent work within the baseline.
 - [execution-doc-scope] The implementation document should contain concrete implementation details and primarily answer "how to complete it", including affected files, code change plan, phase breakdown, review checklist, verification plan, and commit plan.
-- [execution-doc-confirmation] Unless the user requests otherwise, the implementation document does not require separate confirmation by default. After design confirmation, the AI may complete the implementation document and enter the implementation phase directly.
-
+- [execution-doc-confirmation] Implementation documents need no separate confirmation by default. Continue after necessary planning when implementation is already authorized and no blocking decision remains.
 ## Bug Fix Rules
 
 - [root-cause-first] Analyze the root cause before deciding on a fix.
 - [simple-bugfix] For localized bug fixes with a clear root cause and solution, modifications may proceed directly after briefly explaining the root cause, solution, and affected files. This remains true when the fix corrects erroneous behavior, updates tightly coupled tests or supporting files, touches multiple files, or exceeds an arbitrary line-count threshold, provided it introduces no unresolved design decision, dependency change, or public contract change.
-- [bugfix-plan-gate] Require an implementation plan and user confirmation for a bug fix only when the root cause or solution remains uncertain, materially different solutions require user choice, the fix changes dependencies or public contracts, the behavioral impact is broad or crosses module boundaries, or implementation requires phases or multiple relatively independent subtasks. File count and changed-line count must not be used as standalone plan triggers.
+- [bugfix-plan-gate] Continue investigating uncertain causes; use proportionate planning for broad impact, complex dependencies, or phased work. Request a decision only for unresolved, unauthorized material behavior, public-contract, dependency, or architecture choices. Investigation and planning are not approval gates.
 - [fallback-last] Automatic degradation/fallback behavior must always be the last option.
-- [no-hardcoded-fix] Do not use hardcoded fixes without informing the user and receiving approval first.
+- [no-hardcoded-fix] Hardcoded fixes require informed user approval; existing explicit approval remains valid under [authorization-and-completion].
 - [environment-fix-first] For missing tools, missing configuration, inaccessible external services, and similar issues, prioritize environment/configuration-based fixes:
   - Automatically fix the issue if possible
   - If automatic repair is impossible, clearly explain what is missing
   - Do not bypass the issue through exception swallowing or compatibility workarounds
-- [fallback-confirmation] Automatic degradation/fallback behavior may only be considered after all previous paths are confirmed infeasible, and only after user confirmation.
+- [fallback-confirmation] Automatic degradation/fallback behavior requires evidence that the preceding applicable paths are infeasible and informed user approval. Do not request the same approval again when that behavior is already explicitly authorized.
 - [bugfix-delivery] Every delivery must include: root cause, solution, impact scope, and verification results.
 
 ## Cross-Project Feature Porting
 
-- [port-source-baseline] When the user asks to port, copy, or migrate an existing feature from a source project to a target project, treat the source implementation as the implementation baseline rather than merely as inspiration for a new implementation. Preserve its established capability, behavior, edge-case handling, and internal support unless the user explicitly narrows the scope, a source capability falls outside the target project's confirmed design, or the source implementation is demonstrably incompatible with the target project. Any handling of incompatibility or resulting capability reduction must still follow [port-deviation-gate].
-- [port-boundary-analysis] Before changing the target project, trace the source feature from its entry points through all directly required implementation layers and record a source-to-target mapping. The analysis must cover applicable UI or API entry points, state and domain logic, services and data access, persistence, types, configuration, permissions, validation, error handling, background behavior, assets, localization, and tests. Follow transitive dependencies until reaching an existing shared-infrastructure boundary; do not assume the visible entry point represents the complete feature.
-- [port-functional-unit] Decompose the source feature into cohesive, independently verifiable internal functional units. A functional unit must include the full vertical slice required for its behavior; it is neither an isolated entry-point snippet nor necessarily the entire feature or module.
-- [port-copy-then-adapt] Port one functional unit at a time. Copy each unit as intact as the target architecture and technology allow, including its necessary supporting implementation and relevant tests; then make the smallest adaptations required for the target project; only after behavioral equivalence is established may unneeded parts be removed. Keep copying, adaptation, and removal conceptually separate so omissions and intentional differences remain reviewable.
-- [port-no-reimplementation] Do not replace an available, compatible source implementation with a newly invented implementation, copy only the visible entry layer, or reconstruct the feature from isolated snippets. Reimplementation is acceptable only when intact porting is infeasible because of a demonstrated incompatibility or when the user explicitly requests a redesign.
-- [port-review-without-silent-change] Treat the porting analysis as a review of the source implementation as well. Proactively report discovered bugs, risks, and meaningful improvement opportunities, including their evidence and impact, but do not silently fix, refactor, optimize, or otherwise change them during the port. Preserve the source behavior by default and propose each such change separately; implement it only after user confirmation.
-- [port-deviation-gate] Before omitting a required source unit, reducing capability, changing established behavior, or reimplementing instead of porting, explain the incompatibility, affected behavior, recommended approach, and alternatives, then wait for user confirmation. Target-project conventions alone justify local adaptation, not silent capability loss or redesign.
-- [port-completeness-verification] Verify both the source-to-target mapping and the resulting behavior. Account for every discovered functional unit and supporting dependency as ported, mapped to an existing target capability, intentionally excluded with approval, or not applicable with a stated reason. Run the smallest relevant unit-level checks followed by representative end-to-end success and failure flows; use source tests as migration evidence and port applicable regression coverage.
+When this workflow applies, read [feature-porting](feature-porting.md).
 
 ## Code Style, Comments, and Logging
 
@@ -138,14 +122,14 @@ Unless explicitly requested by the user, these rules take precedence over any co
 - [reuse-tests] Reuse existing tests whenever possible; do not prioritize creating new test files.
 - [invariant-tests] Do not write tests for invariants already guaranteed by upstream validation, type constraints, or database constraints, especially within trusted internal data flows. This rule does not apply to external input boundaries, permissions, security, or serialization/deserialization boundaries.
 - [no-test-only-abstraction] Do not introduce helpers, wrappers, composables, or service abstractions solely for testing convenience.
-- [verification-ladder] Prioritize the minimum relevant verification set for the current modification, covering modified behavior and reasonably inferable direct impact areas. Escalate verification levels based on risk in the following order when necessary: static reasoning → typecheck → lint → targeted unit test → targeted integration test → E2E → full suite. If the current verification level is already sufficient to validate the change or determine the failure cause, do not escalate further.
+- [verification-ladder] Select the smallest sufficient combination of checks for the change risk and failure mechanism, covering modified behavior and reasonably inferable direct impact. Static reasoning, typecheck, lint, unit, integration, E2E, and full-suite tests are options, not mandatory sequential levels. Stop expanding verification once required checks pass and relevant concerns are resolved.
 - [full-suite] Full suite runs should only occur when shared infrastructure, global configuration, public types, auth/session/permission logic, schemas/migrations, or multi-module changes are involved.
 - [ui-visual-test] UI visual adjustments should not add tests by default. Use typecheck/lint and manual/browser visual confirmation instead.
 - [e2e-scope] E2E tests should only cover real user workflows, not simple color, spacing, text, icon, or prop modifications.
 - [snapshot] Snapshot updates are prohibited by default unless the UI structure changes and is directly related to the requirement.
 - [test-expectation] Do not modify test expectations merely to make tests pass unless the original test is confirmed to be incorrect.
 - [unrelated-failures] When tests fail, determine whether the failure is related to the current modification first. Do not casually fix unrelated failures.
-- [no-repeat-verification] Do not rerun already-passed verifications unless related files have changed again.
+- [no-repeat-verification] Repeat a passed check only when relevant code, dependencies, configuration, environment, or fixtures changed, or concrete evidence calls the result into question.
 - [test-unavailable] If tests cannot be executed, explain why and provide suggested verification commands.
 - [verification-report] Final delivery must explain which verifications were executed, which were not executed, and why.
 - [final-review] Before final delivery, verify:

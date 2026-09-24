@@ -1,0 +1,91 @@
+---
+meta:
+  nav: Introduction
+  title: Introduction to Labs
+  description: A collection of in-development components for testing purposes before final release
+  keywords: labs
+related:
+  - /getting-started/installation/
+  - /getting-started/browser-support/
+  - /introduction/sponsors-and-backers/
+---
+
+# Vuetify Labs
+
+Experiment and use in-development components before they're released.
+
+<PageFeatures />
+
+## What is Labs? { id=what-is-labs }
+
+Labs is a new way for developers to use unfinished components in an alpha state.
+
+::: error
+Components available through Labs are considered **NOT** production ready and only to be used for testing purposes. Breaking changes will be introduced in patch releases and no support will be provided.
+:::
+
+## Usage
+
+Using a Labs component is as simple as importing from `vuetify/labs`. The following example shows how to import and bootstrap `v-month-picker` in your component:
+
+```html
+<template>
+  <v-month-picker />
+</template>
+
+<script setup>
+  import { VMonthPicker } from 'vuetify/labs/VMonthPicker'
+</script>
+```
+
+Alternatively you can make the component available globally by importing it in your Vuetify plugin file:
+
+```js { resource="src/plugins/vuetify.js" }
+import { createVuetify } from 'vuetify'
+import { VMonthPicker } from 'vuetify/labs/VMonthPicker'
+
+export default createVuetify({
+  components: {
+    VMonthPicker,
+  },
+})
+```
+
+When Vuetify instantiates it will register `VMonthPicker` as a usable component within templates.
+
+If you wish to install all available Vuetify components use the following code snippet:
+
+```js { resource="src/plugins/vuetify.js" }
+import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as labsComponents from 'vuetify/labs/components'
+
+export default createVuetify({
+  components: {
+    ...components,
+    ...labsComponents,
+  },
+})
+```
+
+<PromotedEntry />
+
+## Available Components
+
+The following is a list of available and up-and-coming components for use with Labs:
+
+| Component                                            | Description                                                | Min Version                                                |
+|------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|
+| [v-pie](/components/pie-charts/)                     | A component to display data as interactive pie/donut chart | [v3.9.3](/getting-started/release-notes/?version=v3.9.3)   |
+| [v-video](/components/videos/)                       | A customizable wrapper for native video element            | [v3.9.3](/getting-started/release-notes/?version=v3.9.3)   |
+| [v-avatar-group](/components/avatar-groups/)         | A component to group and display multiple avatars          | [v3.12.0](/getting-started/release-notes/?version=v3.12.0) |
+| [v-command-palette](/components/command-palettes/)   | A searchable command palette component                     | [v3.12.0](/getting-started/release-notes/?version=v3.12.0) |
+| [v-progress](/components/progress/)                  | A unified progress indicator component with a11y defaults  | [v4.0.3](/getting-started/release-notes/?version=v4.0.3)   |
+| [v-date-range-picker](/components/date-range-pickers/) | A dual-month range picker component                      | [v4.1.0](/getting-started/release-notes/?version=v4.1.0)   |
+| [v-heatmap](/components/heatmaps/)                   | A component to display data as a colored grid              | [v4.1.0](/getting-started/release-notes/?version=v4.1.0)   |
+| [v-highlight](/components/highlights/)               | Renders text with highlighted search matches               | [v4.1.0](/getting-started/release-notes/?version=v4.1.0)   |
+| [v-month-picker](/components/month-pickers/)         | A month and year picker component                          | [v4.1.0](/getting-started/release-notes/?version=v4.1.0)   |
+
+::: warning
+Lab component APIs are **NOT** finalized and can and will change. You should **EXPECT** for things to break during the course of development.
+:::

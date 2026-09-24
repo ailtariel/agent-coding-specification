@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Project"
+  short_description: "Vue, React, Vite, pnpm, and design guidance."
+  default_prompt: "Use $web-project to choose relevant guidance for a cross-stack frontend task. Load a specific framework skill directly when the task already identifies it."

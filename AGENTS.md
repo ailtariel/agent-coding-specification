@@ -32,9 +32,9 @@ Agents may still implement a single-repository solution when it is genuinely the
 
 ## Required Reading Order
 
-Before any functional design, implementation, code edit, or command execution related to delivery:
+Before making task-related design or implementation decisions (read-only discovery to locate the instructions may proceed):
 
-1. Read the relevant `README.md` for the current scope or affected repository.
+1. Read the task-relevant parts of the scope or affected repository `README.md` when present. Reuse material already read in this conversation when unchanged.
 2. Inspect the `AI-coding-specification/` directory, if it exists. If it contains a `README.md`, read it first and follow its task routing. Then read the rule documents relevant to the current task and treat them as mandatory.
 3. For multi-repository tasks, repeat this process in each affected repository by inspecting its local `AGENTS.md`, `README.md`, `AI-coding-specification/` directory before making changes in that repository.
 
@@ -47,14 +47,21 @@ Before the following task types, agents must search relevant `docs/` directories
 - Feature changes or new feature implementation.
 - Debugging tasks where the error is not a simple syntax error.
 
-If multiple documents conflict with each other, if documentation conflicts with the current implementation, or if documentation conflicts with the user's explicit request in the current conversation, stop before code changes and confirm the intended direction with the user.
+Resolve conflicts using explicit instruction priority first. A current user request that clearly replaces an earlier design takes precedence; implement the authorized change and update affected documentation. Existing implementation is evidence, not proof that a conflicting document is correct. Ask only when material ambiguity remains, pause only dependent changes, and continue independent authorized work. Draft or superseded documents are background, not additional active rules.
 
 When relevant documents exist, agents should update those documents by default after completing the code changes, unless the user explicitly asks not to or the change does not affect documented behavior, workflows, constraints, or decisions.
+
+## Authorization And Completion
+
+- Existing user authorization persists across investigation, planning, implementation, and verification. Do not request it again merely because a task has several steps or documents.
+- Review-only and design-only requests remain limited to those deliverables.
+- Within authorized implementation, complete the goal, relevant checks, and repairs of failures caused by the change. Ask only for unresolved material decisions or actions outside that authorization.
+- If an instruction causes a pause, identify its file and clause, the unresolved decision, and the independent work that can continue.
 
 ## Execution Requirements
 
 - Do not start implementation before the required documents are read.
-- If any required file is missing or path is invalid, stop and report the gap first.
+- If a missing or unreadable instruction is necessary to determine behavior or authorization, report the exact path and pause only dependent implementation. An absent ordinary README or optional design document does not block read-only investigation or otherwise authorized work.
 - Follow the coding specification constraints for planning, changes, and verification when the task involves code changes.
 - Before final response for code-related tasks, self-check compliance against the coding specification.
 
