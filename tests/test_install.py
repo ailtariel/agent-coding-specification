@@ -20,7 +20,7 @@ class InstallTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.repo = self.root / "source"
         self.home = self.root / "user with spaces"
         self.codex = self.home / ".codex"
@@ -110,6 +110,27 @@ class InstallTests(unittest.TestCase):
         self.run_install()
         self.write(self.home / ".agents/skills/web-project/vue/SKILL.md", "---\nname: vue\n---\nModified\n")
         self.assertEqual(self.run_install("--check"), 1)
+
+    def test_reinstall_preserves_user_tables_inside_managed_config_block(self):
+        for overrides in ([], [self.codex / "skills/.system/openai-docs/SKILL.md"]):
+            with self.subTest(overrides=bool(overrides)):
+                original = installer.configure_skills('model = "existing"\n', overrides)
+                original = original.replace(
+                    "# END agent-coding-specification",
+                    "[memories]\ngenerate_memories = true\nuse_memories = true\n"
+                    "# END agent-coding-specification",
+                )
+                self.write(self.codex / "config.toml", original)
+                self.assertEqual(self.run_install(), 0)
+                result = installer.text(self.codex / "config.toml")
+                parsed = tomllib.loads(result)
+                self.assertEqual(parsed["memories"], {"generate_memories": True, "use_memories": True})
+                self.assertEqual(parsed["model"], "existing")
+                self.assertEqual(len(parsed["skills"]["config"]), 1)
+                self.assertFalse(parsed["skills"]["config"][0]["enabled"])
+                self.assertEqual(self.run_install(), 0)
+                self.assertEqual(installer.text(self.codex / "config.toml"), result)
+                self.assertEqual(self.run_install("--check"), 0)
 
     def test_partial_failure_rolls_back_all_touched_targets(self):
         old_agents = (self.codex / "AGENTS.md").read_bytes()

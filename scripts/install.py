@@ -79,7 +79,20 @@ def configure_skills(original: str, disabled: list[Path]) -> str:
     begin, end = f"# BEGIN {MARK}", f"# END {MARK}"
     if original.count(begin) != original.count(end) or original.count(begin) > 1:
         raise ValueError("Malformed managed config block")
-    original = re.sub(re.escape(begin) + r".*?" + re.escape(end), "", original, flags=re.S)
+    def preserve_user_sections(match):
+        # Config editors may insert unrelated tables inside our comment markers.
+        # Only the generated path/enabled override entries belong to the installer.
+        kept = []
+        for section in re.split(r"(?m)(?=^\s*\[)", match[1]):
+            if re.match(r"\s*\[\[skills\.config\]\]", section):
+                entry = tomllib.loads(section)["skills"]["config"][0]
+                if set(entry) == {"path", "enabled"} and entry["enabled"] is False:
+                    continue
+            kept.append(section.replace("# No additional overrides.\n", ""))
+        return "".join(kept)
+
+    original = re.sub(re.escape(begin) + r"(.*?)" + re.escape(end),
+                      preserve_user_sections, original, flags=re.S)
     tomllib.loads(original)
     wanted = {str(p.resolve()) for p in disabled}
     present: set[str] = set()
