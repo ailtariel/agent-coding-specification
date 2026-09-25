@@ -8,3 +8,8 @@ Imported on 2026-09-24. Existing attribution, licenses, references, and supporti
 - `web-project/uiux-design/`: local tool-independent router over the preserved design references.
 
 Upstream sources for framework references remain listed in `README.md` and `update_skills.py`. Stage updates and merge intentionally; never overwrite personal workflow, framework, or style choices automatically.
+
+## Vue ecosystem revision (2026-09-25)
+
+- Vue personal practices were consolidated from the user's `gsoc-stream2/AI-coding-specification/vue-vuetify.md` and explicit computed/watch preferences. Project-specific examples and paths are not prescribed. Vue/Pinia tutorials and duplicate Vuetify guidance were shortened; official reference snapshots remain available on demand.
+- `web-project/vue/vueuse/` is locally authored from official VueUse documentation and the `vueuse/vueuse` implementation of `whenever` and `until`. The user's Vitruvian `useAwait.ts` supplied the use case, not copied code. No upstream function catalog or implementation is vendored. The upstream `skills/vueuse-functions` directory is registered for staged comparisons only.

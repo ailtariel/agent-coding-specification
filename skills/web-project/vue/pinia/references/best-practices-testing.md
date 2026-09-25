@@ -11,7 +11,7 @@ Create a fresh pinia instance for each test:
 
 ```ts
 import { setActivePinia, createPinia } from 'pinia'
-import { useCounterStore } from '../src/stores/counter'
+import useCounterStore from '../src/stores/counter'
 
 describe('Counter Store', () => {
   beforeEach(() => {
@@ -56,7 +56,7 @@ Use `createTestingPinia()`:
 ```ts
 import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
-import { useSomeStore } from '@/stores/myStore'
+import useSomeStore from '@/stores/myStore'
 
 const wrapper = mount(Counter, {
   global: {

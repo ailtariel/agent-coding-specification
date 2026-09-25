@@ -15,6 +15,7 @@ This skill provides framework and tooling references only. If it conflicts with 
   - [pinia](vue/pinia/SKILL.md): Vue state management and stores.
   - [vue-router](vue/vue-router/SKILL.md): Vue Router guards, params, lifecycle, and navigation gotchas.
   - [vuetify](vue/vuetify/SKILL.md): Vuetify components, layouts, theming, and migration notes.
+  - [vueuse](vue/vueuse/SKILL.md): Reactive utilities, conditional callbacks, and waiting for data readiness.
 - [react](react/SKILL.md): React and Next.js performance best practices.
   - [ant-design](react/ant-design/SKILL.md): antd 6.x, Ant Design Pro/ProComponents, Ant Design X, and `@ant-design/cli` guidance.
 - [vite](vite/SKILL.md): Vite config, plugin API, build, SSR, and migration work.
@@ -34,6 +35,7 @@ This skill provides framework and tooling references only. If it conflicts with 
 8. For `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc`, workspace filters, or dependency changes, read `pnpm/SKILL.md`.
 9. For explicit UI/UX design or design review, read `uiux-design/SKILL.md`. Read `design/SKILL.md` only for a Penpot document or when the user chooses Penpot.
 10. For Vuetify, first identify the installed Vuetify major version from project dependencies. Use Vuetify 4 migration or breaking-change guidance only when the project is on Vuetify 4 or the user explicitly asks about Vuetify 4 migration.
+11. For VueUse utility selection or waiting on reactive data, read `vue/vueuse/SKILL.md`. Shared Vue, Pinia, and Vuetify personal practices live in `vue/SKILL.md`; reuse it when already loaded.
 
 ## Workflow
 
@@ -50,6 +52,7 @@ web-project/
 |   +-- pinia/
 |   +-- vue-router/
 |   +-- vuetify/
+|   +-- vueuse/
 +-- react/
 |   +-- ant-design/
 +-- vite/

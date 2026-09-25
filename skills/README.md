@@ -24,8 +24,11 @@ These paths are used by `update_skills.py`.
 | `web-project/vue/pinia/` | `https://github.com/antfu/skills.git` -> `skills/pinia` |
 | `web-project/vue/vue-router/` | `https://github.com/JetBrains/skills.git` -> `vue-router-best-practices` |
 | `web-project/vue/vuetify/` | Locally maintained against official Vuetify documentation; do not overwrite from the old generated source. |
+| `web-project/vue/vueuse/` | Personal guidance based on `https://github.com/vueuse/vueuse`; `skills/vueuse-functions` is staged for comparison only. |
 | `web-project/react/` | `https://github.com/vercel-labs/agent-skills.git` -> `skills/react-best-practices` |
 | `web-project/react/ant-design/` | `https://github.com/ant-design/antd-skill.git` -> `skills/ant-design` |
 | `web-project/vite/` | `https://github.com/antfu/skills.git` -> `skills/vite` |
 | `web-project/pnpm/` | `https://github.com/antfu/skills.git` -> `skills/pnpm` |
 | `web-project/design/` | `https://github.com/github/awesome-copilot.git` -> `skills/penpot-uiux-design` |
+
+Vue personal conventions are maintained together in `web-project/vue/SKILL.md`, including Pinia ownership and Vuetify style choices. Child skills provide on-demand technical detail. VueUse guidance prefers `whenever` / `until` for reactive readiness instead of custom wait wrappers; the upstream function catalog is not a required read. English and Chinese Vue/VueUse entries express the same practices.

@@ -7,7 +7,7 @@ metadata:
   author: github.com/vuejs-ai
 ---
 
-Vue Router best practices, common gotchas, and navigation patterns.
+Vue Router best practices, common gotchas, and navigation patterns. Apply the shared [Vue personal conventions](../SKILL.md) when not already loaded. Read only the reference needed for the current routing question.
 
 ### Navigation Guards
 - Navigating between same route with different params → See [router-beforeenter-no-param-trigger](reference/router-beforeenter-no-param-trigger.md)

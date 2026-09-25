@@ -46,6 +46,12 @@ SKILLS: tuple[SkillSource, ...] = (
         target_path=Path("web-project/vue/pinia"),
     ),
     SkillSource(
+        name="vueuse",
+        repo="https://github.com/vueuse/vueuse.git",
+        source_path=Path("skills/vueuse-functions"),
+        target_path=Path("web-project/vue/vueuse"),
+    ),
+    SkillSource(
         name="vite",
         repo="https://github.com/antfu/skills.git",
         source_path=Path("skills/vite"),

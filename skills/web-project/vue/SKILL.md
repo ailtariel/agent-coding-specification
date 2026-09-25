@@ -1,163 +1,57 @@
 ---
 name: vue
-description: Implement Vue SFCs, reactivity, lifecycle, and composables using the personal Composition API and TypeScript conventions.
+description: Apply personal Vue, Pinia, and Vuetify conventions to components, state, and views.
 metadata:
-  author: Anthony Fu
-  version: "2026.1.31"
-  source: Generated from https://github.com/vuejs/docs, scripts at https://github.com/antfu/skills
+  author: Personal revision; original Vue references by Anthony Fu
+  source: Personal conventions, with references originally adapted from https://github.com/antfu/skills
+  updated: "2026-09-25"
 ---
 
 # Vue
 
-> Based on Vue 3.5. Always use Composition API with `<script setup lang="ts">`.
+Personal practices for Vue development. Apply them to the requested work; they do not authorize unrelated rewrites. Current user instructions and higher-priority project requirements take precedence. Confirm installed versions before using version-specific APIs.
 
-## Vue Ecosystem Index
+## Code And Ownership
 
-- **Core Vue**: continue with this file and its `references/` directory for Composition API, SFC macros, reactivity, lifecycle, and built-in components.
-- **Pinia**: read [pinia/SKILL.md](pinia/SKILL.md) for stores, getters, actions, plugins, SSR, testing, and store composition.
-- **Vue Router**: read [vue-router/SKILL.md](vue-router/SKILL.md) for guards, params, navigation loops, same-route updates, and lifecycle interactions.
-- **Vuetify**: read [vuetify/SKILL.md](vuetify/SKILL.md) when code imports `vuetify` or uses Vuetify components, layout, theming, or migration behavior.
+- Use Composition API, TypeScript, and `<script setup lang="ts">`. Keep props as `props.x`; use `withDefaults` instead of Reactive Props Destructure. Prefer `shallowRef` when deep reactivity is unnecessary.
+- App owns providers and global initialization; layout owns shared application chrome and `RouterView`; page owns its data orchestration, actions, content, and primary scroll region. Shared components express variation through props, slots, models, and emits, not route-name branches.
+- Keep feature-private files together. Extract for independent responsibility, actual reuse, or meaningful complexity reduction; do not add wrappers that only forward props or supply spacing.
+- `service.ts` owns API calls through the existing HTTP client and preserves its result/error contract. Components, stores, and composables call the service; it does not own UI loading or dialogs. For result-based clients, callers check success without adding rejection wrappers or duplicate error feedback.
+- `store.ts` default-exports one Pinia setup store exposing its related shared state and actions together. Keep store-specific processing inside the store, even when it is pure computation; helpers need not all be public. Return all Pinia-managed state. Logic reuse alone does not justify shared state.
+- Shared module types belong in its `types.ts`; component-only props, emits, and local types stay in setup. Use `import type`. Promote files to shared scope only for real cross-feature use.
 
-## Personal Preferences
+## Reactivity And State
 
-- Prefer TypeScript over JavaScript
-- Prefer `<script setup lang="ts">` over `<script>`
-- For performance, prefer `shallowRef` over `ref` if deep reactivity is not needed
-- Always use Composition API over Options API
-- Discourage Reactive Props Destructure; use `props.x` and `withDefaults` even on versions that support reactive destructuring.
-- These are deliberate personal preferences for code written in this task; they do not authorize unrelated rewrites. Higher-priority project constraints and current user instructions still apply.
+- When A changes reactively as a derived value of B, use `computed`, never an extra writable ref synchronized by a watcher. Use explicit-source `watch` only for requirements that computed cannot express, such as asynchronous work or external side effects; complex calculations alone do not justify it.
+- Do not use `watchEffect`, `watchPostEffect`, or `watchSyncEffect` in personal code. This preference does not prohibit third-party implementations from using them internally.
+- VueUse supplies reactive data utilities. For reacting to API data becoming ready, prefer `whenever` for conditional callbacks and `until` for an awaited one-time condition over handwritten watcher/Promise wrappers. These handle effects and waiting; derived values still use computed. See [VueUse](vueuse/SKILL.md) for readiness, failure, and lifetime details.
+- Keep local input, loading, and interaction state in setup. Share an operation's state only when multiple consumers must observe the same operation. Editing drafts are independent state with explicit initialization, submission, and discard; do not overwrite unsaved edits through unconditional synchronization.
+- Read store state directly or through `storeToRefs`; actions may be destructured. Do not create detached copies with ordinary state destructuring or `ref(store.value)`, except intentional editing drafts.
+- Mutations update or invalidate the authoritative source through its owner. Do not reload data merely to make Vue notice a change.
 
-## Application And Component Ownership
+## Reusable Logic
 
-Use clear ownership boundaries in routed Vue applications:
+- Reusable reactive logic outside the relevant store belongs in `use{ModuleName}.ts` with a same-named exported function. Merely being asynchronous or calling an API does not justify the `use` prefix. This naming convention does not rename third-party APIs.
+- Each composable call owns its local state by default. Avoid implicit module-level singletons; intentional shared state needs an explicit owner and lifetime. Accept refs/getters when inputs must stay reactive, read them inside computed/watch, and return refs/computed in a plain object rather than `.value` snapshots.
+- A composable owns cleanup of its timers, listeners, and subscriptions in the valid setup/effect scope where it is used. Do not add lifecycle wrappers to ordinary data functions.
+- Non-reactive reusable functions unrelated to a store belong in module `utils.ts`, accept plain inputs, and do not use the `use` prefix. Simple single-component helpers stay in setup; store-owned computations stay in the store.
 
-- **App root**: owns providers, global initialization, themes, locale setup,
-  top-level overlays, and capabilities shared across all routes. It should not
-  contain feature-page content or page-local workflows.
-- **Route layout**: owns stable application chrome, shared shell components, and
-  the child `RouterView`. It should not branch on route names to implement page
-  business behavior.
-- **Route page**: owns route-specific data orchestration, page composition,
-  page-local state, actions, and the primary content or scroll region.
-- **Feature component**: owns a focused business UI responsibility within one
-  feature and may remain private to that feature.
-- **Shared component**: owns a stable responsibility reused across features. It
-  exposes variation through typed props, slots, models, and emits instead of
-  reading route names or unrelated global state.
+## Views And Styles
 
-Do not create a wrapper component for one call site unless it materially
-reduces complexity. Prefer slots and component attributes over wrapper nodes
-whose only purpose is spacing or forwarding props.
+- Templates express declarative props, models, events, and slots. Simple display expressions may stay inline; business calculations and multi-step operations belong in setup or the data owner.
+- When using Vuetify, first check whether component and view functionality can use existing project components or Vuetify components, props, slots, composables, and built-in classes before writing custom UI or CSS. Preserve defaults unless an actual requirement calls for customization.
+- When custom CSS is needed and no Vuetify API/class fits, use inline `style` for simple one-off declarations and `:style` for dynamic values. Do not invent a class, file, or wrapper for one declaration or repeat the same inline group across consumers.
+- `<style scoped>` holds repeated component-local classes or necessary, narrowly targeted `:deep()` overrides after checking public APIs/slots. Do not use unbounded `.v-*` overrides.
+- Confirmed global semantic colors belong in theme; framework styling variables in the existing SASS entry; component prop defaults in `defaults`. Keep page exceptions local and do not create global configuration without a requirement.
+- Follow the configured formatter. Keep multiline interpolation's opening tag, interpolation, and closing tag on separate lines; avoid `>{{` or `}}</...>` at multiline boundaries. Keep Prettier `htmlWhitespaceSensitivity: "css"` unless the project deliberately chooses otherwise.
 
-If a project uses feature modules, colocate feature pages, private components,
-types, stores, services, and composables. Move an artifact to a shared
-directory only after it has real cross-feature consumers and no longer depends
-on one feature's internal contract.
+## References On Demand
 
-## State And Data Flow
+Read only what resolves the current question; do not load every reference or child skill.
 
-- Treat Vue or store state as the reactive source of truth for UI rendering.
-  Do not manually reload data merely to make Vue notice a state change.
-- Use `computed` for derived state. Use `watch` or `watchEffect` for side
-  effects, synchronization with external systems, or lifecycle-sensitive work,
-  not as a replacement for computed values.
-- Keep local UI state in the owning component. Use Pinia only for state shared
-  across owners; use the project's query/data layer for server-state caching.
-- Keep a form editing buffer distinct from authoritative persisted state when
-  the workflow supports cancel, reset, dirty state, or deferred saving.
-- A successful mutation should update or invalidate the authoritative reactive
-  source and any directly related source through its owning store or data
-  layer.
-- Avoid destructuring reactive objects in ways that lose reactivity. Follow the
-  target Vue version's supported props and reactivity patterns.
-
-## Composable And Type Boundaries
-
-- Use a composable to encapsulate reusable stateful Vue logic, not merely to
-  move a few lines out of a component.
-- Name composables with `use`, accept reactive inputs when callers need them,
-  clean up effects and external resources, and return refs in a plain object so
-  destructuring preserves reactivity.
-- Module-level singleton state in a composable is global state. Use it only
-  when shared lifetime is intentional and explicit; keep feature-scoped caches
-  inside the feature boundary.
-- Types used by one SFC may stay in that SFC. Shared types should move to the
-  nearest feature-level or responsibility-specific type module rather than a
-  catch-all global types file.
-
-## Template And Formatting Guidance
-
-- Keep templates readable and let the project's configured formatter determine
-  wrapping, indentation, and attribute layout.
-- Avoid dense one-line component trees. Use named slots and focused child
-  components when they clarify stable responsibilities.
-- When interpolation content spans multiple lines, place the opening tag,
-  interpolation, and closing tag on separate lines. Avoid `>{{` or
-  `}}</...>` at a multiline boundary.
-- Keep Prettier's default `htmlWhitespaceSensitivity: "css"` unless the
-  project has a deliberate alternative. Changing it to normalize one template
-  can alter meaningful whitespace between inline elements.
-
-## Core
-
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Script Setup & Macros | `<script setup>`, defineProps, defineEmits, defineModel, defineExpose, defineOptions, defineSlots, generics | [script-setup-macros](references/script-setup-macros.md) |
-| Reactivity & Lifecycle | ref, shallowRef, computed, watch, watchEffect, effectScope, lifecycle hooks, composables | [core-new-apis](references/core-new-apis.md) |
-
-## Features
-
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Built-in Components & Directives | Transition, Teleport, Suspense, KeepAlive, v-memo, custom directives | [advanced-patterns](references/advanced-patterns.md) |
-
-## Quick Reference
-
-### Component Template
-
-```vue
-<script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-
-const props = defineProps<{
-  title: string
-  count?: number
-}>()
-
-const emit = defineEmits<{
-  update: [value: string]
-}>()
-
-const model = defineModel<string>()
-
-const doubled = computed(() => (props.count ?? 0) * 2)
-
-watch(() => props.title, (newVal) => {
-  console.log('Title changed:', newVal)
-})
-
-onMounted(() => {
-  console.log('Component mounted')
-})
-</script>
-
-<template>
-  <div>{{ title }} - {{ doubled }}</div>
-</template>
-```
-
-### Key Imports
-
-```ts
-// Reactivity
-import { ref, shallowRef, computed, reactive, readonly, toRef, toRefs, toValue } from 'vue'
-
-// Watchers
-import { watch, watchEffect, watchPostEffect, onWatcherCleanup } from 'vue'
-
-// Lifecycle
-import { onMounted, onUpdated, onUnmounted, onBeforeMount, onBeforeUpdate, onBeforeUnmount } from 'vue'
-
-// Utilities
-import { nextTick, defineComponent, defineAsyncComponent } from 'vue'
-```
+- SFC macros and version boundaries: [script setup](references/script-setup-macros.md).
+- Watch timing, asynchronous invalidation, and effect lifetime: [reactivity](references/core-new-apis.md).
+- Built-in component caveats: [advanced patterns](references/advanced-patterns.md).
+- Pinia-specific APIs: [Pinia](pinia/SKILL.md); route guards and component reuse: [Vue Router](vue-router/SKILL.md).
+- Vuetify layout/configuration and version-specific APIs: [Vuetify](vuetify/SKILL.md).
+- Reactive utilities and waiting for data: [VueUse](vueuse/SKILL.md).

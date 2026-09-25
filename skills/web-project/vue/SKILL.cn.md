@@ -1,148 +1,57 @@
 ---
 name: vue
-description: 按个人 Composition API 和 TypeScript 约定实现 Vue SFC、响应式、生命周期和 composable。
+description: 在组件、状态与 view 开发中应用个人 Vue、Pinia 和 Vuetify 约定。
 metadata:
-  author: Anthony Fu
-  version: "2026.1.31"
-  source: Generated from https://github.com/vuejs/docs, scripts at https://github.com/antfu/skills
+  author: Personal revision; original Vue references by Anthony Fu
+  source: Personal conventions, with references originally adapted from https://github.com/antfu/skills
+  updated: "2026-09-25"
 ---
 
 # Vue
 
-> 基于 Vue 3.5。始终使用 Composition API 和 `<script setup lang="ts">`。
+个人 Vue 开发实践，适用于当前任务，不授权重写无关代码。当前用户指令和更高优先级项目要求优先。使用版本特定 API 前确认已安装版本。
 
-## Vue 生态索引
+## 代码与职责
 
-- **Vue Core**：继续阅读本文件及其 `references/` 目录，获取 Composition API、SFC 宏、响应式、生命周期和内置组件相关指导。
-- **Pinia**：store、getter、action、plugin、SSR、测试和 store 组合请阅读 [pinia/SKILL.md](pinia/SKILL.md)。
-- **Vue Router**：guard、param、导航循环、同路由更新和生命周期交互请阅读 [vue-router/SKILL.md](vue-router/SKILL.md)。
-- **Vuetify**：代码 import `vuetify`，或使用 Vuetify 组件、layout、theme 或 migration 行为时，阅读 [vuetify/SKILL.md](vuetify/SKILL.md)。
+- 使用 Composition API、TypeScript 和 `<script setup lang="ts">`。保留 `props.x`，使用 `withDefaults`，不使用 Reactive Props Destructure。不需要深层响应式时优先使用 `shallowRef`。
+- App 负责 provider 和全局初始化；layout 负责共享应用外壳和 `RouterView`；page 负责数据编排、操作、内容和主要滚动区域。共享组件通过 props、slots、models、emits 表达差异，不通过路由名称分支适配。
+- 功能私有文件就近放置。为独立职责、真实复用或实质降低复杂度而提取，不创建仅转发 props 或提供间距的包装组件。
+- `service.ts` 通过已有 HTTP client 调用 API，保留其结果与错误合同。组件、store、composable 通过 service 调用；service 不持有 UI loading 或弹窗。client 以结果返回错误时，由调用者判断成功，不增加 reject 包装或重复错误反馈。
+- `store.ts` 默认导出一个 Pinia setup store，整体提供相关共享状态和操作。专属数据处理即使是纯计算也留在 store 内，辅助函数不必全部公开；Pinia 管理的状态必须返回。逻辑复用本身不构成共享状态的理由。
+- 模块共享类型放在模块 `types.ts`；组件私有 props、emits 和局部类型留在 setup。使用 `import type`。只有真实跨功能使用时才提升到共享范围。
 
-## 个人偏好
+## 响应式与状态
 
-- 优先使用 TypeScript，而不是 JavaScript
-- 优先使用 `<script setup lang="ts">`，而不是 `<script>`
-- 如果不需要深层响应式，为提高性能优先使用 `shallowRef`，而不是 `ref`
-- 始终使用 Composition API，而不是 Options API
-- 不鼓励使用 Reactive Props Destructure；使用 `props.x` 和 `withDefaults`，即使当前版本支持响应式解构。
-- 这些是有意保留的个人倾向，适用于本次编写的代码；不因此重写无关旧代码。更高优先级项目约束或当前用户要求仍优先。
+- A 值基于 B 值进行响应式派生时，一律使用 `computed`，不通过额外可写 ref 与 watcher 维持同步。只有 computed 无法表达的需求，如异步操作或外部副作用，才使用显式声明依赖的 `watch`；计算复杂本身不是理由。
+- 个人代码不使用 `watchEffect`、`watchPostEffect` 或 `watchSyncEffect`。这项偏好不限制第三方内部实现。
+- VueUse 提供响应式数据操作工具。等待 API 数据就绪后执行操作时，条件回调优先使用 `whenever`，异步流程中等待一次条件成立优先使用 `until`，避免手写 watcher/Promise 包装。它们处理副作用和等待；派生值仍使用 computed。就绪、失败与生命周期细节见 [VueUse](vueuse/SKILL.md)。
+- 输入、loading 和交互状态留在 setup；多个消费者需要观察同一操作时才共享状态。编辑草稿是有明确初始化、提交和丢弃行为的独立状态，不用无条件同步覆盖未保存的编辑。
+- 直接访问 store 状态，或通过 `storeToRefs` 解构；action 可以直接解构。除有意的编辑草稿外，不通过普通状态解构或 `ref(store.value)` 创建脱离数据源的副本。
+- 修改通过所有者更新或失效权威数据源，不为了让 Vue 感知变化而重新加载数据。
 
-## 应用与组件职责
+## 复用逻辑
 
-在带路由的 Vue 应用中使用清晰的职责边界：
+- 不属于相应 store 的可复用响应式逻辑放在 `use{ModuleName}.ts`，导出的入口函数同名。仅异步或仅调用 API 不构成使用 `use` 前缀的理由；不据此重命名第三方 API。
+- 每次 composable 调用默认拥有局部状态。不创建隐含的模块级单例；有意共享的状态必须明确所有者和生命周期。输入需要保持响应式时接收 ref/getter，在 computed/watch 内读取；返回普通对象中的 ref/computed，不返回 `.value` 快照。
+- composable 在有效 setup/effect scope 中使用，并负责清理自己创建的计时器、监听器与订阅。不为普通数据函数增加生命周期包装。
+- 与 store 无关的非响应式复用函数放在模块 `utils.ts`，接收普通参数，不使用 `use` 前缀。单组件的简单函数留在 setup，store 专属计算留在 store。
 
-- **App root**：负责 provider、全局初始化、theme、locale 设置、顶层 overlay 和所有 route 共享的能力。它不应包含 feature page 内容或页面局部 workflow。
-- **Route layout**：负责稳定的 application chrome、共享 shell component 和子级 `RouterView`。它不应通过 route name 分支实现页面业务行为。
-- **Route page**：负责路由特定的数据编排、页面组合、页面局部状态、操作，以及主要内容区域或滚动区域。
-- **Feature component**：负责单个 feature 中聚焦的业务 UI 职责，并可保持为该 feature 私有。
-- **Shared component**：负责跨 feature 复用的稳定职责。它通过类型化的 prop、slot、model 和 emit 暴露变化，而不是读取 route name 或无关的 global state。
+## View 与样式
 
-除非能实质降低复杂度，否则不要为单个调用点创建 wrapper component。优先使用 slot 和 component attribute，而不是仅用于间距或转发 prop 的 wrapper node。
+- 模板通过 props、models、events、slots 声明式绑定。简单显示表达式可内联；业务计算和多步操作放在 setup 或数据所有者中。
+- 使用 Vuetify 时，组件和 view 相关功能优先检查已有项目组件或 Vuetify 组件、props、slots、composables、内置 class 能否实现，再编写自定义 UI 或 CSS。没有实际定制需求时保留默认配置。
+- 确实需要自定义 CSS 且没有适用的 Vuetify API/class 时，简单一次性声明使用内联 `style`，动态值使用 `:style`。不为单次声明创建 class、文件或包装组件，也不在多个使用处重复同组内联声明。
+- `<style scoped>` 存放组件内重复使用的局部 class，或检查公开 API/slot 后确有必要的定点 `:deep()` 覆盖。不写无边界的 `.v-*` 覆盖。
+- 已确认的全局语义颜色归 theme，框架样式变量归已有 SASS 入口，组件属性默认值归 `defaults`。页面例外保持局部，没有需求时不创建全局配置。
+- 遵循已配置的 formatter。多行插值的开始标签、插值和结束标签分别独占一行，不在多行边界出现 `>{{` 或 `}}</...>`。除非项目明确另选方案，保持 Prettier `htmlWhitespaceSensitivity: "css"`。
 
-如果项目使用 feature module，应将 feature page、私有组件、类型、store、service 和 composable 放在一起。只有 artifact 存在真实的跨 feature 使用方，并且不再依赖单个 feature 的内部契约时，才将其移动到 shared 目录。
+## 按需参考
 
-## 状态与数据流
+只读取能解决当前问题的资料，不全量加载参考文件或子 skill。
 
-- 将 Vue 或 store state 视为 UI 渲染的响应式事实来源。不要仅为了让 Vue 感知状态变化而手工 reload 数据。
-- 派生状态使用 `computed`。`watch` 或 `watchEffect` 用于副作用、与外部系统同步或生命周期敏感的工作，不要用它们替代 computed value。
-- 局部 UI state 保留在对应组件中。只有所有者之间共享的状态才使用 Pinia；server-state caching 使用项目既有的 query/data layer。
-- 当 workflow 支持 cancel、reset、dirty state 或延迟保存时，应将 form editing buffer 与权威持久化状态分离。
-- Mutation 成功后，应通过权威响应式来源自己的 store 或 data layer 更新或失效该来源及直接相关来源。
-- 避免以丢失响应式的方式解构 reactive object。遵循目标 Vue 版本支持的 prop 和响应式模式。
-
-## Composable 与类型边界
-
-- Composable 用于封装可复用的有状态 Vue 逻辑，不要仅为了把几行代码移出组件而使用它。
-- Composable 以 `use` 命名；调用方需要时接受 reactive input；清理 effect 和外部资源；以普通对象返回 ref，使解构能够保留响应式。
-- Composable 中的 module-level singleton state 就是 global state。只有共享生命周期是明确且有意的设计时才使用；feature-scoped cache 应保持在 feature 边界内。
-- 仅一个 SFC 使用的类型可以保留在该 SFC 中。共享类型应移动到最近的 feature-level 或 responsibility-specific 类型模块，不要放入无所不包的 global types 文件。
-
-## 模板与格式化指导
-
-- 保持模板易读，由项目配置的 formatter 决定换行、缩进和 attribute layout。
-- 避免密集的单行 component tree。当 named slot 和聚焦的 child component 能够澄清稳定职责时，应使用它们。
-- 当 interpolation 内容跨越多行时，将 opening tag、interpolation 和 closing tag 分别放在独立行。避免在多行边界出现 `>{{` 或 `}}</...>`。
-- 除非项目有经过明确考虑的替代配置，否则保持 Prettier 默认的 `htmlWhitespaceSensitivity: "css"`。仅为规范一个模板而修改它，可能改变 inline element 之间有意义的空白。
-
-## 核心
-
-| 主题 | 说明 | 参考 |
-| --- | --- | --- |
-| Script Setup 与宏 | `<script setup>`、defineProps、defineEmits、defineModel、defineExpose、defineOptions、defineSlots、泛型 | [script-setup-macros](references/script-setup-macros.md) |
-| 响应式与生命周期 | ref、shallowRef、computed、watch、watchEffect、effectScope、生命周期 hook、composable | [core-new-apis](references/core-new-apis.md) |
-
-## 功能
-
-| 主题 | 说明 | 参考 |
-| --- | --- | --- |
-| 内置组件与指令 | Transition、Teleport、Suspense、KeepAlive、v-memo、自定义指令 | [advanced-patterns](references/advanced-patterns.md) |
-
-## 快速参考
-
-### 组件模板
-
-```vue
-<script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
-
-const props = defineProps<{
-  title: string;
-  count?: number;
-}>();
-
-const emit = defineEmits<{
-  update: [value: string];
-}>();
-
-const model = defineModel<string>();
-
-const doubled = computed(() => (props.count ?? 0) * 2);
-
-watch(
-  () => props.title,
-  (newVal) => {
-    console.log("Title changed:", newVal);
-  },
-);
-
-onMounted(() => {
-  console.log("Component mounted");
-});
-</script>
-
-<template>
-  <div>{{ title }} - {{ doubled }}</div>
-</template>
-```
-
-### 关键 import
-
-```ts
-// Reactivity
-import {
-  ref,
-  shallowRef,
-  computed,
-  reactive,
-  readonly,
-  toRef,
-  toRefs,
-  toValue,
-} from "vue";
-
-// Watchers
-import { watch, watchEffect, watchPostEffect, onWatcherCleanup } from "vue";
-
-// Lifecycle
-import {
-  onMounted,
-  onUpdated,
-  onUnmounted,
-  onBeforeMount,
-  onBeforeUpdate,
-  onBeforeUnmount,
-} from "vue";
-
-// Utilities
-import { nextTick, defineComponent, defineAsyncComponent } from "vue";
-```
+- SFC 宏与版本边界：[script setup](references/script-setup-macros.md)。
+- watch 时机、异步失效与 effect 生命周期：[响应式](references/core-new-apis.md)。
+- 内置组件的易错边界：[高级模式](references/advanced-patterns.md)。
+- Pinia 特定 API：[Pinia](pinia/SKILL.md)；路由守卫和组件复用：[Vue Router](vue-router/SKILL.md)。
+- Vuetify 布局、配置与版本特定 API：[Vuetify](vuetify/SKILL.md)。
+- 响应式工具与等待数据：[VueUse](vueuse/SKILL.md)。

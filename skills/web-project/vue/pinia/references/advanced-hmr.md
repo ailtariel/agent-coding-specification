@@ -1,61 +1,23 @@
----
-name: hot-module-replacement
-description: Enable HMR to preserve store state during development
----
+# Store HMR
 
-# Hot Module Replacement (HMR)
-
-Pinia supports HMR to edit stores without page reload, preserving existing state.
-
-## Setup
-
-Add this snippet after each store definition:
+When the project uses store HMR, keep the setup store's default export and register the existing bundler's HMR hook after its definition:
 
 ```ts
-import { defineStore, acceptHMRUpdate } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { ref } from 'vue'
 
-export const useAuth = defineStore('auth', {
-  // store options...
-})
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useAuth, import.meta.hot))
-}
-```
-
-## Setup Store Example
-
-```ts
-import { defineStore, acceptHMRUpdate } from 'pinia'
-
-export const useCounterStore = defineStore('counter', () => {
+const useCounterStore = defineStore('counter', () => {
   const count = ref(0)
-  const increment = () => count.value++
-  return { count, increment }
+  return { count }
 })
+
+export default useCounterStore
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useCounterStore, import.meta.hot))
 }
 ```
 
-## Bundler Support
+This example uses Vite's `import.meta.hot`; check the target bundler's interface. HMR is a development integration, not a reason to refactor unrelated stores.
 
-- **Vite:** Officially supported via `import.meta.hot`
-- **Webpack:** Uses `import.meta.webpackHot`
-- Any bundler implementing the `import.meta.hot` spec should work
-
-## Nuxt
-
-With `@pinia/nuxt`, `acceptHMRUpdate` is auto-imported but you still need to add the HMR snippet manually.
-
-## Benefits
-
-- Edit store logic without losing state
-- Add/remove state, actions, and getters on the fly
-- Faster development iteration
-
-<!--
-Source references:
-- https://pinia.vuejs.org/cookbook/hot-module-replacement.html
--->
+Source: [Pinia HMR](https://pinia.vuejs.org/cookbook/hot-module-replacement.html).
