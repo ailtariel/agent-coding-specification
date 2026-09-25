@@ -11,9 +11,12 @@ This directory contains default specifications for AI-assisted functional design
 
 ## Task Types and Specification Routing
 
+If `AI-coding-specification/repo-rules.md` exists in the target workspace or affected repository, read it and apply its relevant clauses alongside the specifications routed below. Resolve repository-local rules separately for each affected repository.
+
 - **Functional design tasks:** Analyze requirements, complete or compare approaches, or create or modify functional design documents. Read [`functional-design.md`](functional-design.md).
 - **Implementation tasks:** Modify code, configuration, databases, deployment assets, or other implementation artifacts. Read [`coding-specification.md`](coding-specification.md) once and apply relevant clauses. For web work read [`web-frontend.md`](web-frontend.md); for complex phased work read [`large-tasks.md`](large-tasks.md); for porting an existing feature read [`feature-porting.md`](feature-porting.md). Do not load unrelated workflows.
 - **Mixed tasks:** Follow the design and implementation rules for their respective work. Existing implementation authorization persists through design refinement; pause only when the user requested a design approval gate or a material decision remains unauthorized.
+- **Rule authoring tasks:** When adding, modifying, reviewing, or proactively extracting rules, read [`rules-and-skills-authoring.md`](rules-and-skills-authoring.md). The permission and destination for proactive extraction are defined by `[repo-rule-extraction]` in [`coding-specification.md`](coding-specification.md).
 - If the task type changes during execution, read the specifications applicable to the new stage before continuing.
 
 Review-only and design-only requests do not authorize implementation. An end-to-end implementation request does authorize necessary in-scope design refinement, edits, verification, and related fixes. Reuse unchanged rules and documents already read in this conversation. Review tasks read the rules governing the reviewed artifacts; documentation-only edits use the relevant document rather than every implementation workflow.
