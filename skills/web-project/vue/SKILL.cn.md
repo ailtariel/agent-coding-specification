@@ -14,11 +14,40 @@ metadata:
 ## 代码与职责
 
 - 使用 Composition API、TypeScript 和 `<script setup lang="ts">`。保留 `props.x`，使用 `withDefaults`，不使用 Reactive Props Destructure。不需要深层响应式时优先使用 `shallowRef`。
-- App 负责 provider 和全局初始化；layout 负责共享应用外壳和 `RouterView`；page 负责数据编排、操作、内容和主要滚动区域。共享组件通过 props、slots、models、emits 表达差异，不通过路由名称分支适配。
+- App 负责全局初始化和插件安装；layout 负责共享应用外壳和 `RouterView`；page 负责数据编排、操作、内容和主要滚动区域。共享组件通过 props、slots、models、emits 表达差异，不通过路由名称分支适配。
 - 功能私有文件就近放置。为独立职责、真实复用或实质降低复杂度而提取，不创建仅转发 props 或提供间距的包装组件。
 - `service.ts` 通过已有 HTTP client 调用 API，保留其结果与错误合同。组件、store、composable 通过 service 调用；service 不持有 UI loading 或弹窗。client 以结果返回错误时，由调用者判断成功，不增加 reject 包装或重复错误反馈。
 - `store.ts` 默认导出一个 Pinia setup store，整体提供相关共享状态和操作。专属数据处理即使是纯计算也留在 store 内，辅助函数不必全部公开；Pinia 管理的状态必须返回。逻辑复用本身不构成共享状态的理由。
 - 模块共享类型放在模块 `types.ts`；组件私有 props、emits 和局部类型留在 setup。使用 `import type`。只有真实跨功能使用时才提升到共享范围。
+
+## 变量共享
+
+- [vue-provide-inject-scope] 父子组件之间的简单变量传递直接使用 props。多个组件或 TypeScript 文件之间的大范围共享，优先直接访问所属 store，或由各消费者分别调用相应的 `use{ModuleName}`；分别调用 composable 不等于自动共享状态。业务代码中的 provide/inject 主要用于跨层级但小范围的组件变量传递，例如 A → B → C 中只有 A、C 需要该变量，B 完全不关心。inject 接受方必须是组件，在组件 setup 中直接调用；不得在 store、普通 TypeScript 模块或自定义 composable 中调用，也不得通过 `useContext` 等包装函数绕过。此约束针对业务代码，不限制第三方库内部实现。
+
+简单父子变量使用 props；大范围共享的会话数据直接取自所属 store：
+
+```ts
+// Child.vue setup
+const props = defineProps<{ title: string }>();
+
+// A consumer of application-wide session state
+const session = useSessionStore();
+```
+
+在局部 A → B → C 子树中，B 只渲染 C，不转发变量：
+
+```ts
+// A.vue setup
+import { provide, readonly, ref } from 'vue';
+const sectionTitle = ref('Overview');
+provide('sectionTitle', readonly(sectionTitle));
+```
+
+```ts
+// C.vue setup
+import { inject, type Ref } from 'vue';
+const sectionTitle = inject<Readonly<Ref<string>>>('sectionTitle');
+```
 
 ## 响应式与状态
 

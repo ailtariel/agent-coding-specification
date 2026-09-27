@@ -14,11 +14,40 @@ Personal practices for Vue development. Apply them to the requested work; they d
 ## Code And Ownership
 
 - Use Composition API, TypeScript, and `<script setup lang="ts">`. Keep props as `props.x`; use `withDefaults` instead of Reactive Props Destructure. Prefer `shallowRef` when deep reactivity is unnecessary.
-- App owns providers and global initialization; layout owns shared application chrome and `RouterView`; page owns its data orchestration, actions, content, and primary scroll region. Shared components express variation through props, slots, models, and emits, not route-name branches.
+- App owns global initialization and plugin installation; layout owns shared application chrome and `RouterView`; page owns its data orchestration, actions, content, and primary scroll region. Shared components express variation through props, slots, models, and emits, not route-name branches.
 - Keep feature-private files together. Extract for independent responsibility, actual reuse, or meaningful complexity reduction; do not add wrappers that only forward props or supply spacing.
 - `service.ts` owns API calls through the existing HTTP client and preserves its result/error contract. Components, stores, and composables call the service; it does not own UI loading or dialogs. For result-based clients, callers check success without adding rejection wrappers or duplicate error feedback.
 - `store.ts` default-exports one Pinia setup store exposing its related shared state and actions together. Keep store-specific processing inside the store, even when it is pure computation; helpers need not all be public. Return all Pinia-managed state. Logic reuse alone does not justify shared state.
 - Shared module types belong in its `types.ts`; component-only props, emits, and local types stay in setup. Use `import type`. Promote files to shared scope only for real cross-feature use.
+
+## Variable Sharing
+
+- [vue-provide-inject-scope] Use props for simple parent-to-child variables. For broad sharing across components and TypeScript files, prefer accessing the owning store directly or calling the relevant `use{ModuleName}` at each consumer; separate composable calls do not automatically share state. Reserve application-owned `provide/inject` for a small component subtree spanning intermediate components that do not need the value, such as A → B → C where only A and C use it. The injection receiver must be a component: call `inject` in that component's setup, not in a store, ordinary TypeScript module, or custom composable. Do not wrap injection in `useContext` or another helper to bypass this boundary. This constraint governs application code, not third-party library internals.
+
+Simple parent-child data uses props; broadly shared session data comes from its store:
+
+```ts
+// Child.vue setup
+const props = defineProps<{ title: string }>();
+
+// A consumer of application-wide session state
+const session = useSessionStore();
+```
+
+For a local A → B → C subtree, B only renders C and does not forward the variable:
+
+```ts
+// A.vue setup
+import { provide, readonly, ref } from 'vue';
+const sectionTitle = ref('Overview');
+provide('sectionTitle', readonly(sectionTitle));
+```
+
+```ts
+// C.vue setup
+import { inject, type Ref } from 'vue';
+const sectionTitle = inject<Readonly<Ref<string>>>('sectionTitle');
+```
 
 ## Reactivity And State
 
