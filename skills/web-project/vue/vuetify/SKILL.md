@@ -5,7 +5,7 @@ metadata:
   version: 4.1.0
   generated_at: 2026-06-07
   references_synced_at: 2026-06-07
-  guidance_updated: "2026-09-25"
+  guidance_updated: "2026-09-30"
 ---
 
 # Vuetify
@@ -13,6 +13,15 @@ metadata:
 Apply the shared [Vue personal conventions](../SKILL.md), including component/view reuse and style placement, when not already loaded. Check whether existing project components or Vuetify can implement the requested view/interaction before introducing custom UI.
 
 The local documentation snapshot covers Vuetify 4.1.0; this is not a claim about the latest release. Confirm the target dependency version. For Vuetify 3, use only APIs verified against that installed version; do not apply v4 migration notes.
+
+## Layout Preferences
+
+These are personal implementation preferences for Vuetify projects:
+
+- Prefer Flex for responsive layouts and local rows or stacks. Use CSS Grid only when an actual two-dimensional alignment or spanning requirement justifies it; do not use it merely for spacing or equal-width cards.
+- Compose app bars with `VAppBarNavIcon`, `VAppBarTitle`, `VDivider`, `VSpacer`, and the app bar slots where their roles apply. Do not recreate their sizing, spacing, or separation with custom CSS, or add components that serve no layout role.
+- Prefer `VContainer`, `VCard`, `VSheet`, and supported flex layout components/utilities for page regions. Use `VRow`/`VCol` when responsive columns are needed. Do not start with generic `div` wrappers and custom CSS where these components fit; native semantic content, measurement nodes, and library host elements remain appropriate. Use `VFlex` only when the installed version exports it; Vuetify 3/4 use current layout components and flex utilities.
+- Use Vuetify responsive utilities, component props, and named `useDisplay()` breakpoints before custom width media queries or manual width comparisons. Keep a custom query only for a requirement the configured breakpoints cannot express. Media features such as `prefers-reduced-motion` are separate from viewport breakpoints.
 
 ## References On Demand
 

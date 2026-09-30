@@ -148,7 +148,7 @@ defaults 中的 prop 名称应使用 camelCase。
 ## 响应式原则
 
 - 先明确目标设备和主要 viewport，再设计布局。
-- 优先使用 Vuetify grid、display/platform、spacing、flex、sizing utilities 和组件 responsive props。
+- 容器、Flex 布局及响应式断点遵循 [布局偏好](../SKILL.cn.md#布局偏好)。选择 `VRow` / `VCol` 前确认已安装版本的布局模式；不要将“响应式”本身作为使用 CSS Grid 的理由。
 - 不要只为当前桌面宽度写布局。
 - 固定尺寸、固定高度和绝对定位应评估小屏、横屏、触摸设备和系统安全区域的影响。
 - 内容密集页面应优先保证可扫描性、可触达性和滚动边界清晰。

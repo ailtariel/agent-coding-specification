@@ -6,7 +6,7 @@ Shared personal practices, including inline/scoped/global style placement, are d
 
 In the personal app -> layout -> page structure, app owns `VApp`; layout owns `VLayout`, registered shell regions, and `RouterView`; each routed page owns its `VMain` and primary content/scroll region. This is a personal ownership convention, not a framework requirement. Preserve an explicitly established alternative project architecture.
 
-Use `VMain` for content affected by registered application-layout offsets rather than imitating offsets with margins or fixed positioning. Use a distinct layout for a distinct shell. `VContainer` supplies standard width/gutters when needed; full-width content may use an appropriate child directly within `VMain`. Use `VRow`/`VCol` for responsive page grids and utilities for small local groups.
+Use `VMain` for content affected by registered application-layout offsets rather than imitating offsets with margins or fixed positioning. Use a distinct layout for a distinct shell. `VContainer` supplies standard width/gutters when needed; full-width content may use an appropriate child directly within `VMain`. Apply the [layout preferences](../SKILL.md#layout-preferences) when choosing containers, flex layouts, and responsive breakpoints. Confirm the installed version's layout mode before relying on `VRow`/`VCol` behavior.
 
 Prefer layout props such as `order`, `location`, and `permanent` over manual positioning. Registration/template order affects layout priority; `order` can make it explicit.
 

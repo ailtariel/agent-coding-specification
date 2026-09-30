@@ -21,7 +21,16 @@ metadata:
 - 对 Vuetify 3 项目，只使用已确认存在于 Vuetify 3 的通用 component/layout/theming 指导；相比 v4 migration note，优先使用项目本地代码和已安装 package 的文档。
 - 版本未知时，先询问或检查依赖，然后再修改代码。
 
-## 实施 workflow
+## 布局偏好
+
+以下是 Vuetify 项目的个人实现偏好：
+
+- 响应式布局、横向分组和纵向堆叠优先使用 Flex。只有确需二维对齐或跨行跨列时才使用 CSS Grid，不要仅为间距或等宽卡片引入 Grid。
+- App bar 按职责使用 `VAppBarNavIcon`、`VAppBarTitle`、`VDivider`、`VSpacer` 和相应 slot；不使用自定义 CSS 重做它们已有的尺寸、间距和分隔能力，也不要为了凑齐组件而添加无作用的结构。
+- 页面区域优先使用 `VContainer`、`VCard`、`VSheet` 及当前版本支持的 Flex 布局组件和工具类；需要响应式分栏时使用 `VRow` / `VCol`。已有组件适用时，不从通用 `div` 加自定义 CSS 开始。语义内容、测量节点和第三方库宿主仍可使用原生元素。仅在已安装版本导出 `VFlex` 时使用它；Vuetify 3/4 使用现行布局组件和 Flex 工具类。
+- 优先使用 Vuetify 响应式工具类、组件属性及 `useDisplay()` 的命名断点。只有配置的断点无法表达真实需求时，才使用自定义宽度媒体查询或手动宽度比较。`prefers-reduced-motion` 等媒体特性不属于视口断点。
+
+## 实施顺序
 
 按以下顺序应用 Vuetify 指导：
 
@@ -46,7 +55,7 @@ metadata:
 | 应用级 top bar | `VAppBar` 和 `VAppBarTitle` |
 | 受 application chrome 影响的路由页面内容 | 每个 routed page 各自拥有一个 `VMain` |
 | 页面宽度、水平 gutter 和页面 padding | `VContainer` |
-| 响应式页面 grid | `VRow` 和 `VCol` |
+| 响应式分栏 | `VRow` 和 `VCol` |
 | 带 action 的 page 或 panel header | `VToolbar` |
 | 通用分组内容或可见 surface | `VCard` |
 | 轻量视觉 surface | `VSheet` |
@@ -67,7 +76,7 @@ metadata:
 - 默认不得在 app 或 layout 中放置一个共享 `VMain`。Page 自己拥有 `VMain`，可以让每条 route 独立控制内容结构、高度、滚动、padding、full-width region 和其他页面特定布局行为，同时继续使用已注册 application shell 提供的 offset。
 - `VMain` 只用于受已注册 application-layout region 影响的内容。不得使用任意 margin、padding、fixed positioning 或 global overflow rule 模拟它保留的 offset。
 - 优先使用 `order`、`location`、`permanent` 和响应式行为等 layout prop，而不是手工定位。Template order 会影响注册优先级；优先级不清晰时使用 `order`。
-- 常规 routed page 通常应以自己的 `VMain` 开始；页面需要标准宽度和 gutter 时，再在其中使用 `VContainer`。Full-width 页面内容可以在 `VMain` 内直接使用其他合适的 child。结构随 breakpoint 变化时使用 `VRow` 和 `VCol`。
+- 常规 routed page 通常应以自己的 `VMain` 开始；页面需要标准宽度和 gutter 时，再在其中使用 `VContainer`。Full-width 页面内容可以在 `VMain` 内直接使用其他合适的 child。需要响应式分栏时使用 `VRow` 和 `VCol`。
 - Route 需要不同 application shell 时，应显式切换到另一个 layout。不得通过在 app/layout 中共享 `VMain`，或在 page 内重新创建已注册 shell region 来解决 shell 差异。
 - 主 scroll region 应有一个清晰所有者。不得让 layout、page 和 local container 争夺主滚动。
 - 如果普通 shell 需要大量手写 height、`calc()`、absolute/fixed positioning 或 overflow hack，添加 CSS 前先重新检查 application layout 模型。
@@ -76,7 +85,7 @@ metadata:
 
 - 对具有 surface 语义的通用分组 block 使用 `VCard`。对 message bubble 或 highlight region 等轻量 surface 使用 `VSheet`。
 - 水平 title/action region 使用 `VToolbar`；属于 card 的 action 使用 `VCardActions`。
-- Vuetify flex utility 只用于已经有组件负责可见 block 的小型一维 group。响应式页面结构使用 grid。
+- Flex 和断点选择遵循上方“布局偏好”；不要将 Flex 工具类限制为小型分组，也不要默认将响应式页面改为 CSS Grid。
 - 间距施加在负责布局的 Vuetify component 上。避免仅负责一个 margin、padding、flex 或 width 规则的 wrapper。
 - 优先使用 prop、theme token 和 utility class，而不是 inline style 或 scoped CSS。真实产品、浏览器、编辑器或平台约束可以使用固定像素值。
 
