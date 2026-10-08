@@ -5,7 +5,7 @@ metadata:
   version: 4.1.0
   generated_at: 2026-06-07
   references_synced_at: 2026-06-07
-  guidance_updated: "2026-09-30"
+  guidance_updated: "2026-10-08"
 ---
 
 # Vuetify
@@ -22,6 +22,12 @@ These are personal implementation preferences for Vuetify projects:
 - Compose app bars with `VAppBarNavIcon`, `VAppBarTitle`, `VDivider`, `VSpacer`, and the app bar slots where their roles apply. Do not recreate their sizing, spacing, or separation with custom CSS, or add components that serve no layout role.
 - Prefer `VContainer`, `VCard`, `VSheet`, and supported flex layout components/utilities for page regions. Use `VRow`/`VCol` when responsive columns are needed. Do not start with generic `div` wrappers and custom CSS where these components fit; native semantic content, measurement nodes, and library host elements remain appropriate. Use `VFlex` only when the installed version exports it; Vuetify 3/4 use current layout components and flex utilities.
 - Use Vuetify responsive utilities, component props, and named `useDisplay()` breakpoints before custom width media queries or manual width comparisons. Keep a custom query only for a requirement the configured breakpoints cannot express. Media features such as `prefers-reduced-motion` are separate from viewport breakpoints.
+
+## Loading, Forms, And Input Actions
+
+- Prefer a component's built-in `loading` prop when available. Add a custom loading indicator only for an explicit customization requirement that the built-in behavior cannot meet; do not display both for the same operation.
+- Do not wrap input controls in `VForm` or a native form by default. Use a form only when its form-specific capabilities, such as validation or coordinated field state, are needed. Preserve required keyboard actions when removing an unnecessary form wrapper.
+- For actions belonging to text fields, autocompletes, and other input controls, use built-in buttons or button props first, then a custom button in the component's public slot. Do not place the input and its action as separate sibling controls unless the interaction requires that separation. Actions applying to a whole filter group or page are not actions of an individual input.
 
 ## References On Demand
 
