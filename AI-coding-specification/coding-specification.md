@@ -1,5 +1,5 @@
 Author: ailtariel@gmail.com
-Updated: 2026-09-24
+Updated: 2026-10-11
 
 # Repository-Level AI Coding Specification
 
@@ -39,6 +39,7 @@ Unless explicitly requested by the user, these rules take precedence over any co
 - [no-extra-abstraction] Do not introduce unnecessary abstraction layers (no unnecessary classes, interfaces, wrappers, or helpers).
 - [abstraction-exception] For backend code, extract only for a clear responsibility boundary, real reuse, or necessary isolation of complex logic, preserving confirmed behavior and improving overall comprehension and maintenance cost. Reuse existing capabilities first; avoid layers that merely forward calls. Reduced line count is a possible benefit, not a prerequisite.
 - [validation-boundary] Validate at external-input and actual trust boundaries. Do not repeat identical checks or fallback handling within the same trusted flow. Validate again at a new trust boundary or when an operation requires a different business invariant. Code-layer count does not determine validation placement.
+- [defect-e2e-evidence] Do not classify a local gap exposed by a hypothetical edge case as a defect without checking the complete relevant end-to-end call chain, including validation, constraints, and handling elsewhere that may already close the gap. A defect requires code-path evidence or a reproduction showing a realistically reachable trigger and a failure to meet required behavior across that chain. Until reachability and impact are established, treat the gap as an unverified concern, not a confirmed defect or a basis for redundant defensive code.
 - [wrapper-pass-through] When wrapping functions, objects, or service calls, pass through their return values and errors unchanged by default, preserving how errors propagate. Do not filter fields, restructure or rewrap results, replace errors, or modify the original returned data without an explicit requirement or design basis. Any transformation, such as adapting to a defined contract or sanitizing sensitive information, must be limited to the changes required for that purpose, preserving all other information and error semantics.
 - [no-silent-failure] Silent failures are prohibited. Unless the user explicitly agrees to degradation behavior, errors should be exposed clearly through logs or returned responses.
 - [api-error-detail] When returning API error responses, preserve meaningful error codes or error text such as `error`, `text`, or `message` from the source whenever available. If the content contains sensitive information, sanitize it before returning.
@@ -74,6 +75,7 @@ When this workflow applies, read [large-tasks](large-tasks.md).
 - [design-freeze] After the user confirms the design document, it becomes the design baseline for the current task by default. During implementation, do not change the design merely because a "cleaner", "more generic", or "more extensible" implementation is found. Reopen design discussion only when a design error, implementation impossibility, major risk, new user requirement, or explicit user request to adjust the design is found. An explicit new user direction settles the corresponding change; request renewed confirmation only for material departures not already authorized. Continue independent work within the baseline.
 - [execution-doc-scope] The implementation document should contain concrete implementation details and primarily answer "how to complete it", including affected files, code change plan, phase breakdown, review checklist, verification plan, and commit plan.
 - [execution-doc-confirmation] Implementation documents need no separate confirmation by default. Continue after necessary planning when implementation is already authorized and no blocking decision remains.
+
 ## Bug Fix Rules
 
 - [root-cause-first] Analyze the root cause before deciding on a fix.
