@@ -7,6 +7,7 @@ The skill is no longer updated from `skilld-dev/vue-ecosystem-skills`. It is mai
 ## Contents
 
 - `SKILL.md` - the runtime skill entry point loaded by Codex when Vuetify guidance is needed.
+- `SKILL.cn.md` - the Chinese counterpart of the runtime entry point.
 - `agents/openai.yaml` - UI metadata for the skill.
 - `references/docs/` - local mirror of official Vuetify documentation pages.
 - `references/releases/` - release notes and release-derived API/component change indexes.
@@ -58,7 +59,9 @@ Recommended update workflow:
    - focused API/component change indexes, when a release contains changes that are useful for agent lookup
    - `SKILL.md` metadata, tags, version boundary, and high-signal API/best-practice bullets
 
-6. Validate the result:
+6. Keep `SKILL.md` / `SKILL.cn.md` and `references/ai-implementation-principles.md` / `references/ai-implementation-principles-cn.md` semantically aligned. Compare both versions before syncing; resolve differences against current project rules and established preferences rather than assuming either language is always authoritative. Preserve equivalent metadata and reference routing, using translated references where available.
+
+7. Validate the result:
 
    ```powershell
    # The local markdown set should match the selected official tag.
