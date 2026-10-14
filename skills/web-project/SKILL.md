@@ -1,11 +1,11 @@
 ---
 name: web-project
-description: Select frontend skills for cross-stack work or when the relevant framework/tool skill is unclear.
+description: Select frontend skills for cross-stack work or unclear framework/tool scope, and apply mixed RTL/LTR text guidance.
 ---
 
 # Web Project
 
-Use this router when skill selection is unclear or work spans several frontend technologies. If the relevant skill is already known, load it directly; parent routers are not prerequisites. Read only guidance that changes a decision for the current task, and reuse material already read.
+Use this router when skill selection is unclear or work spans several frontend technologies; use its bidirectional content guidance when handling mixed RTL/LTR text. If the relevant skill is already known, load it directly; parent routers are not prerequisites. Read only guidance that changes a decision for the current task, and reuse material already read.
 
 This skill provides framework and tooling references only. If it conflicts with the user's global coding specification or repository-local instructions, follow those higher-priority instructions.
 
@@ -43,6 +43,10 @@ This skill provides framework and tooling references only. If it conflicts with 
 2. Prefer project-local conventions over generic framework defaults.
 3. Load detailed nested references only when the current task needs them.
 4. Validate with the repository's available scripts, using targeted checks before broad checks.
+
+## Bidirectional Content
+
+For apps containing both RTL and LTR content, let the existing i18n integration control the global direction. Avoid hardcoding local `direction: ltr/rtl` or `dir="ltr/rtl"` unless the content has a known directional requirement. Isolate dynamic inline text of unknown direction with `<bdi>`; for an independent content block, put `dir="auto"` on its existing suitable container. See [text direction guidance](references/bidirectional-content.md) ([中文](references/bidirectional-content.cn.md)) for examples, alignment, and content-model boundaries.
 
 ## Layout
 
