@@ -13,6 +13,7 @@ Preserve the target's design system. Infer routine details from the file and use
 
 ## References
 
+- Visual hierarchy, surface grouping, and interaction colors: [visual-hierarchy.md](references/visual-hierarchy.md).
 - Penpot API mechanics, board placement, export: [penpot-operations.md](references/penpot-operations.md).
 - Explicit server setup or connection repair: [setup-troubleshooting.md](references/setup-troubleshooting.md).
 - Controls and navigation design: [component-patterns.md](references/component-patterns.md).

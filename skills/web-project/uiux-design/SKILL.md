@@ -13,6 +13,8 @@ Check the affected flow's hierarchy, responsive behavior, feedback states, keybo
 
 ## References
 
+For visual refinement, surface hierarchy, density, or theme-state audits, read [visual hierarchy](../design/references/visual-hierarchy.md).
+
 Read only when needed: [controls and navigation](../design/references/component-patterns.md), [accessibility](../design/references/accessibility.md), [platform constraints](../design/references/platform-guidelines.md), or [starting tokens](../design/references/default-tokens-and-layouts.md).
 
 For a Penpot artifact, use [Penpot operations](../design/SKILL.md). Other design work does not require Penpot or its setup.
