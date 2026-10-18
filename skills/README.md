@@ -4,9 +4,13 @@ Personal customized skill sets.
 
 This directory is now maintained inside `agent-coding-specification`. Use the root [installation guide](../README.md) and `python scripts/install.py` from the repository root to install all managed rules and skills together. The old standalone repository is archived; do not use its GitHub URL for new installations.
 
-Stage framework-reference updates with `python skills/update_skills.py --skill vue,pinia` or list sources with `--list`. Inspect `skills/tmp/update-skills/staged` and merge selected changes deliberately. `--apply` is disabled because wholesale upstream replacement would erase personal conventions and workflow fixes. Existing nested skills and newer local Vuetify references must survive a merge.
+Stage an upstream Vue entry comparison with `python skills/update_skills.py --skill vue` or list sources with `--list`. Inspect `skills/tmp/update-skills/staged` and merge only useful decision guidance. `--apply` is disabled because wholesale replacement would erase personal conventions and reintroduce removed tutorials. Staged snapshots are temporary comparison inputs, not installed references.
 
-See [PROVENANCE.md](PROVENANCE.md) for migration and local/system skill sources. `system-overrides.json` lists bundled skills whose original Codex paths are disabled by the installer. Add a complete fork and its resources before adding a name there.
+See [PROVENANCE.md](PROVENANCE.md) for migration, cleanup, and local/system skill sources. `system-overrides.json` lists bundled skills whose original Codex paths are disabled by the installer. A fork must include the resources its workflow actually uses, required assets, and license notices.
+
+## Content boundary
+
+Keep personal practices, non-obvious decision boundaries, and workflows that add value beyond existing model knowledge. Public API manuals, command catalogs, release/issue snapshots, generic tutorials, and fixed process rituals do not belong in installed skills, including their references. Resolve version-sensitive details from the target installation, live tool documentation, or matching official sources. See the bilingual [authoring rules](../AI-coding-specification/rules-and-skills-authoring.md).
 
 ## Markdown Style
 
@@ -15,20 +19,13 @@ See [PROVENANCE.md](PROVENANCE.md) for migration and local/system skill sources.
 
 ## Sources
 
-These paths are used by `update_skills.py`.
+Upstream comparisons are staged by `update_skills.py`; locally maintained skills do not require an upstream snapshot.
 
 | Local path | Source |
 | --- | --- |
-| `web-project/SKILL.md` | Local aggregate entry point; maintained in this repository. |
 | `web-project/vue/` | `https://github.com/antfu/skills.git` -> `skills/vue` |
-| `web-project/vue/pinia/` | `https://github.com/antfu/skills.git` -> `skills/pinia` |
-| `web-project/vue/vue-router/` | `https://github.com/JetBrains/skills.git` -> `vue-router-best-practices` |
-| `web-project/vue/vuetify/` | Locally maintained against official Vuetify documentation; do not overwrite from the old generated source. |
-| `web-project/vue/vueuse/` | Personal guidance based on `https://github.com/vueuse/vueuse`; `skills/vueuse-functions` is staged for comparison only. |
-| `web-project/react/` | `https://github.com/vercel-labs/agent-skills.git` -> `skills/react-best-practices` |
-| `web-project/react/ant-design/` | `https://github.com/ant-design/antd-skill.git` -> `skills/ant-design` |
-| `web-project/vite/` | `https://github.com/antfu/skills.git` -> `skills/vite` |
-| `web-project/pnpm/` | `https://github.com/antfu/skills.git` -> `skills/pnpm` |
-| `web-project/design/` | `https://github.com/github/awesome-copilot.git` -> `skills/penpot-uiux-design` |
+| `web-project/vue/vuetify/` | Local personal conventions; consult official Vuetify sources on demand, without mirroring them. |
+| `web-project/visual-design/` | Locally maintained visual refinement preferences, curated from the former visual hierarchy reference. |
+| `web-project/visual-design/refactoring-ui/` | Curated diagnostic workflow adapted from [s0xDk/refactoring-ui-skill](https://github.com/s0xDk/refactoring-ui-skill); maintained locally, with upstream MIT notice retained. |
 
-Vue personal conventions are maintained together in `web-project/vue/SKILL.md`, including Pinia ownership and Vuetify style choices. Child skills provide on-demand technical detail. VueUse guidance prefers `whenever` / `until` for reactive readiness instead of custom wait wrappers; the upstream function catalog is not a required read. English and Chinese Vue/VueUse entries express the same practices.
+`web-project/` is a grouping directory, not a discoverable skill. It contains Vue, Vuetify, visual-design, and the nested refactoring-ui skill. Vue owns the Pinia, composable, style, and VueUse selection preferences; Vuetify owns its layout and control preferences; visual-design owns visual refinement preferences; refactoring-ui diagnoses visual problems in existing interfaces. RTL/LTR remains in the Web frontend programming specification. English and Chinese entries express the same practices. The installer discovers nested skills without requiring an artificial parent entry.

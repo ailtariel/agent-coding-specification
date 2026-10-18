@@ -162,7 +162,14 @@ def build(stage: Path, user_home: Path, codex: Path) -> tuple[list[tuple[Path, P
     pairs.append((spec, state / "specification"))
     names: dict[str, str] = {}
     for source in sorted((ROOT / "skills").iterdir()):
-        if not source.is_dir() or not (source / "SKILL.md").exists():
+        if not source.is_dir() or source.name in {".git", "__pycache__", "tmp"}:
+            continue
+        # A top-level directory may group skills without being a skill itself.
+        if not any(
+            entry for entry in source.rglob("SKILL.md")
+            if not any(part in {".git", "__pycache__", "tmp"}
+                       for part in entry.relative_to(source).parts)
+        ):
             continue
         staged = stage / "skills" / source.name
         copy(source, staged)

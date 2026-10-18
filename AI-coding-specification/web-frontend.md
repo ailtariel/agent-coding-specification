@@ -22,6 +22,7 @@ It extends [`coding-specification.md`](coding-specification.md). Project design 
   - When a task includes both UI and functional changes, document only the functional and data-processing changes that need explanation. Do not extend the documentation to layout, styling, or purely interface-level interaction details. Page count, changed-file count, visual complexity, or phased implementation must not independently trigger UI documentation requirements.
   - Deliver change explanations and verification results directly in the conversation instead of generating separate document files.
 - [web-existing-stack] Preserve the project's established frontend framework, component library, state flow, routing model, styling system, formatter, and build tool unless the user explicitly approves a change.
+- [web-language-preference] Prefer TypeScript and ESM for new frontend source and build configuration when supported by the project's toolchain. This personal preference does not authorize converting unrelated files, replacing an established stack, or overriding a confirmed runtime constraint.
 - [web-version-boundary] Confirm installed dependency versions before applying version-specific API, migration, or breaking-change guidance.
 - [web-no-parallel-system] Do not introduce a parallel component library, state-management system, utility CSS framework, styling system, routing system, or data-fetching layer for a localized requirement.
 - [web-existing-patterns] Inspect an existing comparable page, layout, component, state flow, and style pattern before introducing a new pattern.
@@ -95,6 +96,12 @@ Keep page- and module-owned state, types, and data-access files with their owner
 
 - [web-dialog-action-order] When a dialog contains both applying and abandoning actions, place applying actions (such as save, delete, or apply filters) on the left and abandoning actions (such as cancel or close) on the right in LTR layouts. Do not add a cancel button to an interaction that has no abandoning action. Follow a different product convention when the user has confirmed it.
 
+## Primary And Local Scrolling
+
+- [web-scroll-owner] The layout defines the boundary between shell regions and page content; the page content region owns its main content area and primary scrolling. Make each primary scroll boundary explicit, and avoid multiple ancestor and descendant containers competing to scroll the same page content.
+  - Local scrolling is allowed for a clear, bounded responsibility such as a table, editor, preview, log, or virtualized collection. It must not accidentally take over the page's primary scrolling or create redundant scroll layers around the same content.
+  - Fix layout and scroll ownership problems at their source rather than concealing them with global overflow overrides, arbitrary heights, fixed positioning, or additional nested scroll containers. Where bounded dimensions or positioning are needed, check that content remains reachable as the viewport and content change.
+
 ## CSS And Style Ownership
 
 - [web-style-colocation] The same component owns its DOM and private styles. Organize, move, and scope styles with the component according to framework conventions; do not move them into unrelated files to shorten a file or promote them globally for a local need. Public styles contain only application foundations and stable shared visual rules. Reuse existing themes, tokens, component defaults, or shared components before adding public configuration; do not add it for one-page exceptions.
@@ -110,9 +117,12 @@ Keep page- and module-owned state, types, and data-access files with their owner
   - Every form control and icon-only control must have an accessible name. Form controls must preserve validation, disabled and submission states, and error feedback.
   - Preserve keyboard navigation, input method composition, and overlay trigger semantics, focus restoration, and Escape behavior. Focus, hover, active, selected, loading, and disabled states must have visible feedback.
 
-## Bidirectional And RTL Layout
+## Bidirectional Layout And Mixed Text
 
 - [web-logical-direction] Layouts must support bidirectional interfaces. Direction, directional spacing, and alignment use a shared configuration or token source; do not repeat RTL detection in pages and components. Prefer logical properties such as inline/block/start/end; use physical properties such as left/right only for visual requirements that explicitly depend on physical direction.
+  - Keep application direction consistent between the existing i18n integration and UI-library configuration. Do not fix mixed text by forcing direction across a page; explicit local direction is appropriate for content with a known directional requirement.
+- [web-bidi-content] For dynamic text of unknown direction, use `<bdi>` for inline text within surrounding content, and `dir="auto"` on the existing suitable container for an independent content block. Do not add wrappers solely for direction or put block content inside `<bdi>`; changing its CSS display does not change its HTML content model.
+  - Automatic direction follows the first applicable strong directional character, not language detection. Set it per paragraph when paragraphs need independent directions. Use `text-align: start` when alignment should follow content direction; automatic direction does not override explicit physical alignment, and inline isolation does not change the surrounding block's alignment.
 
 ## Internationalization And User-Visible Content
 

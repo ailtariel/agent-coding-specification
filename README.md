@@ -9,13 +9,13 @@
 | `AGENTS.md` | 仓库／工作区规则入口 |
 | `AI-coding-specification/README.md` | 生效规范路由；通用、功能设计、前端、分阶段任务及移植规则 |
 | `AI-coding-specification-cn/` | 对应中文维护稿，不安装到 agent 环境 |
-| `skills/` | 完整迁入的 skill-sets 内容，以及纳入维护的用户／系统 skills |
+| `skills/` | 个人约定与工作流 skills；原始迁入资料已按内容价值清理 |
 | `skills/PROVENANCE.md` | 来源、迁移基线和定制边界 |
 | `skills/system-overrides.json` | 需要替代的 Codex 系统 skill 名称 |
 | `scripts/install.py` | Windows、WSL、macOS 共用的安装、检查及恢复工具 |
 | `scripts/check_codex.py` | 通过 Codex app-server 验证实际 skill 发现结果，不发起模型任务 |
 
-原 `C:/workstation/dev/personal/skill-sets` 的全部 420 个工作树文件已迁入 `skills/`，复制时逐文件校验 SHA-256。原仓库及 Git 历史保留在 `C:/workstation/dev/personal/skill-sets.pre-migration-20260924/`。旧目录因被其他进程占用而无法整体重命名，内容已全部移入归档，只留下 README 指向新位置。后续修改和提交只在本仓库进行。源仓库中的新版 Vue、Vuetify、本地参考文档、许可证和上游来源均保留。
+原 `C:/workstation/dev/personal/skill-sets` 的全部 420 个工作树文件曾完整迁入 `skills/`，复制时逐文件校验 SHA-256。原仓库及 Git 历史保留在 `C:/workstation/dev/personal/skill-sets.pre-migration-20260924/`。旧目录因被其他进程占用而无法整体重命名，内容已全部移入归档，只留下 README 指向新位置。后续修改和提交只在本仓库进行。2026-10-18 按新的内容边界移除了公开 API 快照、通用教程和过时流程附件；保留个人约定、必要资产、许可证及来源记录，删除内容可从 Git 历史追溯。
 
 ## 安装原理
 
@@ -34,7 +34,7 @@
 
 Windows 的 `~` 是当前 Windows 用户目录；WSL 和 macOS 是当前 Unix 用户目录。WSL 与 Windows 各自安装，不共享 `.codex` 配置。安装的规范引用本机快照的绝对路径，因此 WSL 不依赖 Windows 盘持续挂载。
 
-脚本只替换本仓库管理的 skill 目录，保留无关 skills。全局 AGENTS 使用带 `BEGIN/END agent-coding-specification` 标记的区块合并，保留区块外个人内容；能够识别本仓库旧版完整模板时会迁移旧入口并保留 User Preferences。无法识别的旧内容不会自动删除，应检查是否还引用过期规范。
+脚本只替换本仓库管理的 skill 目录，保留无关 skills。顶层目录可以仅作分组用途；安装器发现其中的嵌套 `SKILL.md`，不要求分组目录也有 skill 入口。`skills/web-project/` 包含 Vue、Vuetify、视觉设计，以及视觉设计目录下的 Refactoring UI 诊断 skill。全局 AGENTS 使用带 `BEGIN/END agent-coding-specification` 标记的区块合并，保留区块外个人内容；能够识别本仓库旧版完整模板时会迁移旧入口并保留 User Preferences。无法识别的旧内容不会自动删除，应检查是否还引用过期规范。
 
 所有待替换内容先备份，再写入并校验；失败时恢复本次已触及的目标。重复安装且源未变化时不产生新备份。不直接修改安装副本；修改本仓库后重新执行安装即可同步。
 
@@ -113,7 +113,7 @@ path = "/absolute/codex-home/skills/.system/openai-docs/SKILL.md"
 enabled = false
 ```
 
-实际路径由安装程序生成。以后替代其他系统 skill 时，先将其完整目录和资源提取至 `skills/<name>/`，修订后把名称加入 `skills/system-overrides.json`，再安装和验证。不要只复制一个 `SKILL.md`，也不要直接改 `.system` 缓存。Codex 升级后重新运行检查；如果内置路径或发现协议变化，需要相应更新安装配置。
+实际路径由安装程序生成。以后替代其他系统 skill 时，在 `skills/<name>/` 准备经过审查的入口及其实际依赖的资源、资产和许可证，再把名称加入 `skills/system-overrides.json`，安装并验证。不遗漏必要资源，也不整包保留无用附件或直接改 `.system` 缓存。Codex 升级后重新运行检查；如果内置路径或发现协议变化，需要相应更新安装配置。
 
 官方说明：[AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[skills 目录及禁用配置](https://learn.chatgpt.com/docs/build-skills)、[app-server skills/list](https://learn.chatgpt.com/docs/app-server)。
 
@@ -135,10 +135,10 @@ Windows 对应使用 `python` 和带引号的 Windows 路径。恢复仅处理�
 
 ```bash
 python3 skills/update_skills.py --list
-python3 skills/update_skills.py --skill vue,pinia
+python3 skills/update_skills.py --skill vue
 ```
 
-检查 `skills/tmp/update-skills/staged/` 后手工合并必要变化；`--apply` 已禁用，防止上游更新抹掉个人偏好和修订后的流程。Vuetify 本地参考资料按自身来源维护。
+检查 `skills/tmp/update-skills/staged/` 后只合并有决策价值的变化；`--apply` 已禁用，防止上游更新抹掉个人偏好或重新引入教程、API 快照。Vuetify 只维护个人约定，版本细节按需查已安装包、文档工具和匹配的官方来源。
 
 维护安装器时运行：
 
@@ -154,4 +154,4 @@ python3 -m unittest discover -s tests -v
 
 ## 规则维护原则
 
-规则应描述清晰的场景、边界和预期结果，避免重复约束、固定仪式和无关流程。共用规范保持跨模型可用；模型特有偏好放在个人配置。按风险选择最小充分验证，保留明确的完成条件和既有授权。中文 Markdown 正文不按固定列宽硬折行。
+规则应描述清晰的场景、边界和预期结果，避免重复约束、固定仪式和无关流程。Skill 只补充模型已有知识之外的个人实践、必要上下文和有用工作流，不保存公开 API 手册、版本快照或常规教程；移入 references 不构成保留理由。共用规范保持跨模型可用；模型特有偏好放在个人配置。按风险选择最小充分验证，保留明确的完成条件和既有授权。中文 Markdown 正文不按固定列宽硬折行。

@@ -68,6 +68,28 @@ class InstallTests(unittest.TestCase):
         self.assertEqual(self.run_install("--dry-run"), 0)
         self.assertEqual(before, installer.fingerprint(self.home))
 
+    def test_group_without_entry_preserves_children_and_removes_retired_router(self):
+        self.assertEqual(self.run_install(), 0)
+        (self.repo / "skills/web-project/SKILL.md").unlink()
+        self.write(self.repo / "skills/tmp/staged/SKILL.md", "Ignored")
+        self.write(self.repo / "skills/unused/tmp/staged/SKILL.md", "Ignored")
+        self.write(self.repo / "skills/web-project/tmp/staged/SKILL.md", "Ignored")
+
+        self.assertEqual(self.run_install(), 0)
+        installed = self.home / ".agents/skills"
+        manifest = json.loads(installer.text(self.state / "installed.json"))
+        self.assertEqual(set(manifest["skills"]), {"openai-docs", "vue"})
+        self.assertEqual(
+            (installed / "web-project/vue/SKILL.md").read_bytes(),
+            (self.repo / "skills/web-project/vue/SKILL.md").read_bytes(),
+        )
+        self.assertFalse((installed / "web-project/SKILL.md").exists())
+        self.assertFalse((installed / "web-project/tmp").exists())
+        self.assertFalse((installed / "unused").exists())
+        self.assertFalse((installed / "tmp").exists())
+        self.assertTrue((installed / "unrelated/SKILL.md").exists())
+        self.assertEqual(self.run_install("--check"), 0)
+
     def test_update_and_restore_existing_skill(self):
         target = self.home / ".agents/skills/openai-docs/SKILL.md"
         self.write(target, "---\nname: openai-docs\n---\nOriginal\n")

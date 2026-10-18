@@ -17,10 +17,6 @@ Repeated failures call for reassessing assumptions and gathering new evidence. T
 
 For environment failures, fix authorized environment/configuration issues or report the precise blocker. Do not silently add retries, fallback behavior, or new infrastructure to hide the failure.
 
-## Focused Techniques
-
-- Deep call-stack failures: [root-cause-tracing.md](root-cause-tracing.md).
-- Input or trust-boundary failures: [defense-in-depth.md](defense-in-depth.md).
-- Timing-sensitive checks: [condition-based-waiting.md](condition-based-waiting.md).
+For timing failures, wait on the operation's observable completion/failure rather than an arbitrary delay; a delay is appropriate when elapsed time itself is the behavior under test. For cross-test pollution, compare isolated and ordered runs with the project's test runner and track the resource owner rather than adding validation at every call layer.
 
 Report the root cause and evidence, repair, impact, and actual verification. No companion skill or testing framework is required.

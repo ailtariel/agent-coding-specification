@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Update local skills from Git repositories.
+"""Stage upstream skill comparisons without replacing local guidance.
 
 Only git-clone based sources are supported. Sources that are not known are
 reported and skipped.
@@ -37,63 +37,13 @@ SKILLS: tuple[SkillSource, ...] = (
         repo="https://github.com/antfu/skills.git",
         source_path=Path("skills/vue"),
         target_path=Path("web-project/vue"),
-        entries=("SKILL.md", "references", "GENERATION.md"),
-    ),
-    SkillSource(
-        name="pinia",
-        repo="https://github.com/antfu/skills.git",
-        source_path=Path("skills/pinia"),
-        target_path=Path("web-project/vue/pinia"),
-    ),
-    SkillSource(
-        name="vueuse",
-        repo="https://github.com/vueuse/vueuse.git",
-        source_path=Path("skills/vueuse-functions"),
-        target_path=Path("web-project/vue/vueuse"),
-    ),
-    SkillSource(
-        name="vite",
-        repo="https://github.com/antfu/skills.git",
-        source_path=Path("skills/vite"),
-        target_path=Path("web-project/vite"),
-    ),
-    SkillSource(
-        name="pnpm",
-        repo="https://github.com/antfu/skills.git",
-        source_path=Path("skills/pnpm"),
-        target_path=Path("web-project/pnpm"),
-    ),
-    SkillSource(
-        name="vue-router",
-        repo="https://github.com/JetBrains/skills.git",
-        source_path=Path("vue-router-best-practices"),
-        target_path=Path("web-project/vue/vue-router"),
-    ),
-    SkillSource(
-        name="react",
-        repo="https://github.com/vercel-labs/agent-skills.git",
-        source_path=Path("skills/react-best-practices"),
-        target_path=Path("web-project/react"),
-        entries=("SKILL.md", "README.md", "AGENTS.md", "metadata.json", "rules"),
-    ),
-    SkillSource(
-        name="ant-design",
-        repo="https://github.com/ant-design/antd-skill.git",
-        source_path=Path("skills/ant-design"),
-        target_path=Path("web-project/react/ant-design"),
-    ),
-    SkillSource(
-        name="design",
-        repo="https://github.com/github/awesome-copilot.git",
-        source_path=Path("skills/penpot-uiux-design"),
-        target_path=Path("web-project/design"),
+        entries=("SKILL.md",),
     ),
 )
 
 
 UNKNOWN_SOURCES: tuple[str, ...] = (
-    "web-project: local aggregate entry point; no external git source.",
-    "vuetify: locally maintained against official Vuetify docs; do not overwrite from skilld-dev/vue-ecosystem-skills.",
+    "vuetify: local personal conventions; query version-specific official docs on demand, without mirroring them.",
 )
 
 

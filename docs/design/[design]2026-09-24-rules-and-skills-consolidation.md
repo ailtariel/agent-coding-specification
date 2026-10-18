@@ -2,6 +2,8 @@
 
 Status: authorized by the user on 2026-09-24; implementation and local Windows/Ubuntu installation included.
 
+Update (2026-10-18): the original complete migration remains historical evidence. The user subsequently replaced full-resource retention with decision-value-based maintenance: remove generic tutorials, public API snapshots, and obsolete workflow attachments while retaining personal practices, useful workflows, required assets, licenses, and provenance. See the current [authoring rules](../../AI-coding-specification/rules-and-skills-authoring.md) and [skill provenance](../../skills/PROVENANCE.md). The original acceptance requirement to account for all imported paths does not require keeping them installed indefinitely.
+
 ## Decisions
 
 - This repository owns specifications and the full former skill-sets worktree under `skills/`, including references, attribution, scripts, and newer source-only customizations. Preserve the former repository history in an external migration archive. The former root was held open by another process, preventing the planned directory rename and junction; move its contents to the archive and leave a redirect README in that root instead.
